@@ -1,0 +1,21 @@
+module bulletml.elements._all;
+
+public import bulletml.elements.accel;
+public import bulletml.elements.action;
+public import bulletml.elements.actionref;
+public import bulletml.elements.bullet;
+public import bulletml.elements.bulletref;
+public import bulletml.elements.changedirection;
+public import bulletml.elements.changespeed;
+public import bulletml.elements.direction;
+public import bulletml.elements.fire;
+public import bulletml.elements.fireref;
+public import bulletml.elements.horizontal;
+public import bulletml.elements.param;
+public import bulletml.elements.repeat;
+public import bulletml.elements.speed;
+public import bulletml.elements.term;
+public import bulletml.elements.times;
+public import bulletml.elements.vanish;
+public import bulletml.elements.vertical;
+public import bulletml.elements.wait;
