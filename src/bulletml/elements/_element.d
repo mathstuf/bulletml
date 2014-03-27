@@ -9,6 +9,13 @@ public class InvalidBulletML: Exception {
     }
 }
 
+public class MissingTag: InvalidBulletML {
+  private:
+    public this(string msg) {
+      super(msg);
+    }
+}
+
 public class InvalidTag: InvalidBulletML {
   private:
     public this(string msg) {
