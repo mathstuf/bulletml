@@ -1,6 +1,6 @@
 module bulletml.elements._types;
 
-public enum MotionType {
+public enum Motion {
   ABSOLUTE,
   RELATIVE,
   SEQUENCE
