@@ -7,6 +7,10 @@ private import std.exception;
 private import std.conv;
 private import std.random;
 
+version(unittest) {
+  private import core.exception;
+}
+
 private alias ExpressionContext.Value EValue;
 
 public class ExpressionContext {
@@ -371,4 +375,150 @@ public class ExpressionError: object.Exception {
     public this(string msg) {
       super(msg);
     }
+}
+
+unittest {
+  EValue epsilon = 1e-8;
+  void fuzzyCmp(EValue a, EValue b) {
+    assert((a - b) < epsilon);
+  }
+
+  ExpressionContext ctx;
+
+  // Values
+  {
+    Expression tint = new Expression("1");
+    fuzzyCmp(tint.eval(ctx), 1f);
+
+    Expression tdecimal = new Expression("1.5");
+    fuzzyCmp(tdecimal.eval(ctx), 1.5f);
+
+    Expression tleadzero = new Expression("0.5");
+    fuzzyCmp(tleadzero.eval(ctx), 0.5f);
+
+    Expression tnoleadzero = new Expression(".5");
+    fuzzyCmp(tnoleadzero.eval(ctx), 0.5f);
+  }
+
+  // Basic expressions
+  {
+    Expression tadd = new Expression("1+1");
+    fuzzyCmp(tadd.eval(ctx), 2.0f);
+
+    Expression tsub = new Expression("10-1");
+    fuzzyCmp(tsub.eval(ctx), 9.0f);
+
+    Expression tmult = new Expression("2*2");
+    fuzzyCmp(tmult.eval(ctx), 4.0f);
+
+    Expression tdiv = new Expression("1/2");
+    fuzzyCmp(tdiv.eval(ctx), 0.5f);
+
+    Expression tmod = new Expression("1%2");
+    fuzzyCmp(tmod.eval(ctx), 1.0f);
+
+    Expression tneg = new Expression("-1");
+    fuzzyCmp(tneg.eval(ctx), -1.0f);
+  }
+
+  // Whitespace
+  {
+    Expression tleadwhite = new Expression(" 1+1");
+    fuzzyCmp(tleadwhite.eval(ctx), 2.0f);
+
+    Expression ttrailwhite = new Expression("1+1 ");
+    fuzzyCmp(ttrailwhite.eval(ctx), 2.0f);
+
+    Expression tpreop = new Expression("1 +1");
+    fuzzyCmp(tpreop.eval(ctx), 2.0f);
+
+    Expression tpostop = new Expression("1+ 1");
+    fuzzyCmp(tpostop.eval(ctx), 2.0f);
+  }
+
+  // Order of operations
+  {
+    Expression taddmult = new Expression("1+2*2");
+    fuzzyCmp(taddmult.eval(ctx), 5.0f);
+
+    Expression tmultadd = new Expression("2*2+1");
+    fuzzyCmp(tmultadd.eval(ctx), 5.0f);
+  }
+
+  // Parentheses
+  {
+    Expression tparen = new Expression("(1+1)");
+    fuzzyCmp(tparen.eval(ctx), 2.0f);
+
+    Expression taddmult2 = new Expression("2*(2+1)");
+    fuzzyCmp(taddmult2.eval(ctx), 6.0f);
+  }
+
+  // Compound
+  {
+    Expression tnegmult = new Expression("1*-1");
+    fuzzyCmp(tnegmult.eval(ctx), -1.0f);
+
+    Expression tnegparen = new Expression("(-1)");
+    fuzzyCmp(tnegparen.eval(ctx), -1.0f);
+  }
+
+  ctx.set("four", 4.0f);
+  ctx.set("five", 5.0f);
+  ctx.set("under_score", 1.0f);
+
+  // Variables
+  {
+    Expression texpn = new Expression("$four");
+    fuzzyCmp(texpn.eval(ctx), 4.0f);
+
+    Expression tvarmath = new Expression("$five+$four");
+    fuzzyCmp(tvarmath.eval(ctx), 9.0f);
+
+    Expression tunderscore = new Expression("$under_score");
+    fuzzyCmp(tunderscore.eval(ctx), 1.0f);
+  }
+
+  ctx.set("four", 5.0f);
+
+  // Variables
+  {
+    Expression trebind = new Expression("$four");
+    fuzzyCmp(trebind.eval(ctx), 5.0f);
+  }
+
+  // Exceptions
+  {
+    bool caught = false;
+    try {
+      new Expression("$novar");
+    } catch (RangeError) {
+      caught = true;
+    }
+    assert(caught);
+
+    caught = false;
+    try {
+      new Expression("(");
+    } catch (ParenMismatch) {
+      caught = true;
+    }
+    assert(caught);
+
+    caught = false;
+    try {
+      new Expression("+");
+    } catch (ExpressionError) {
+      caught = true;
+    }
+    assert(caught);
+
+    caught = false;
+    try {
+      new Expression("4+");
+    } catch (ExpressionError) {
+      caught = true;
+    }
+    assert(caught);
+  }
 }
