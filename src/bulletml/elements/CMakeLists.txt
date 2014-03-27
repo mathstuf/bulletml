@@ -8,6 +8,7 @@ set(elements_srcs
     elements/action.d
     elements/actionref.d
     elements/bullet.d
+    elements/bulletml.d
     elements/bulletref.d
     elements/changedirection.d
     elements/changespeed.d
