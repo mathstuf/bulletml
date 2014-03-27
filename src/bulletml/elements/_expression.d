@@ -122,6 +122,11 @@ public class Expression {
         } else if (isalpha(c) || c == '_') {
           assert(token.type() == Token.TokenType.VARIABLE);
           token.append(c);
+        } else if (isspace(c)) {
+          if (!token.isDone()) {
+            tokens ~= token;
+            token.done();
+          }
         }
       }
 
