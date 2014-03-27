@@ -207,6 +207,12 @@ public class Expression {
           assert(0);
         }
       }
+
+      root = checkPop(nodeStack);
+
+      if (nodeStack.length) {
+        throw new ExpressionError("Leftover tokens");
+      }
     }
 
     public EValue eval(ExpressionContext ctx) {
