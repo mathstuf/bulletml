@@ -1,5 +1,6 @@
 set(elements_srcs
     elements/_all.d
+    elements/_element.d
 
     elements/accel.d
     elements/action.d
