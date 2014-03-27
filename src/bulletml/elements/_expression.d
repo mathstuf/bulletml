@@ -157,8 +157,7 @@ public class Expression {
           nodeStack.insertBack(new ExpressionConstant(atof(top.toString().ptr)));
           break;
         case Token.TokenType.NEGATE:
-          ExpressionNode rhs = nodeStack.back;
-          nodeStack.removeBack();
+          ExpressionNode rhs = checkPop(nodeStack);
 
           ExpressionOperation eop = new ExpressionOperation(&subtract, new ExpressionConstant(0.0f), rhs);
 
@@ -171,10 +170,8 @@ public class Expression {
 
           break;
         case Token.TokenType.OPERATOR:
-          ExpressionNode rhs = nodeStack.back;
-          nodeStack.removeBack();
-          ExpressionNode lhs = nodeStack.back;
-          nodeStack.removeBack();
+          ExpressionNode rhs = checkPop(nodeStack);
+          ExpressionNode lhs = checkPop(nodeStack);
 
           Operation op;
           switch (top.toString()) {
@@ -214,6 +211,15 @@ public class Expression {
 
     public EValue eval(ExpressionContext ctx) {
       return root.eval(ctx);
+    }
+
+    private ExpressionNode checkPop(ref Array!ExpressionNode arr) {
+      if (arr.empty()) {
+        throw new ExpressionError("Missing operand");
+      }
+      ExpressionNode node = arr.back;
+      arr.removeBack();
+      return node;
     }
 }
 
