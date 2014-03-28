@@ -402,7 +402,7 @@ unittest {
     assert((a - b) < epsilon);
   }
 
-  ExpressionContext ctx;
+  ExpressionContext ctx = new ExpressionContext;
 
   // Values
   {
@@ -421,14 +421,14 @@ unittest {
 
   // Basic expressions
   {
-    Expression tadd = new Expression("1+1");
-    fuzzyCmp(tadd.eval(ctx), 2.0f);
+    Expression tadd = new Expression("1+2");
+    fuzzyCmp(tadd.eval(ctx), 3.0f);
 
     Expression tsub = new Expression("10-1");
     fuzzyCmp(tsub.eval(ctx), 9.0f);
 
-    Expression tmult = new Expression("2*2");
-    fuzzyCmp(tmult.eval(ctx), 4.0f);
+    Expression tmult = new Expression("2*3");
+    fuzzyCmp(tmult.eval(ctx), 6.0f);
 
     Expression tdiv = new Expression("1/2");
     fuzzyCmp(tdiv.eval(ctx), 0.5f);
@@ -510,7 +510,8 @@ unittest {
   {
     bool caught = false;
     try {
-      new Expression("$novar");
+      Expression e = new Expression("$novar");
+      e.eval(ctx);
     } catch (RangeError) {
       caught = true;
     }
@@ -527,7 +528,7 @@ unittest {
     caught = false;
     try {
       new Expression("+");
-    } catch (ExpressionError) {
+    } catch (AssertError) {
       caught = true;
     }
     assert(caught);
