@@ -49,7 +49,7 @@ public class Expression {
     public this(string expr) {
       Array!Token tokens;
       Token token = new Token(Token.TokenType.CONSTANT);
-      Array!char opStack;
+      Array!Token opStack;
 
       ulong col = 0;
       token.done();
@@ -59,7 +59,6 @@ public class Expression {
         if (c == '$') {
           assert(token.isDone());
           token = new Token(Token.TokenType.VARIABLE);
-        // TODO: Handle unary negation?
         } else if (c == '+' ||
                    c == '-' ||
                    c == '*' ||
@@ -69,45 +68,36 @@ public class Expression {
               (token.isDone() &&
                (tokens.empty() ||
                 !opStack.empty()))) {
-            token = new Token(Token.TokenType.NEGATE);
-            token.done();
+            Token opToken = new Token(Token.TokenType.NEGATE, 100);
+            opToken.append(c);
+            appendToken(opToken, opStack);
             continue;
           }
           assert(!token.empty());
-          tokens.insertBack(token);
-          token.done();
+          appendToken(token, tokens);
+          Token opToken = new Token(opPrio(c));
+          opToken.append(c);
           while (!opStack.empty()) {
-            char top = opStack.back;
-            if (((c == '+' ||
-                  c == '-') &&
-                 (top == '+' ||
-                  top == '-')) ||
-                top == '*' ||
-                top == '/' ||
-                top == '%') {
-              Token opToken = new Token(Token.TokenType.OPERATOR);
-              opToken.append(top);
-              tokens.insertBack(opToken);
+            Token top = opStack.back;
+            if (opToken.priority() <= top.priority()) {
+              appendToken(top, tokens);
               opStack.removeBack();
+            } else {
+              break;
             }
           }
-          opStack.insertBack(c);
+          opStack ~= opToken;
         } else if (c == '(') {
-          assert(tokens.empty() ||
-                 (token.type() == Token.TokenType.OPERATOR));
-          if (!token.isDone()) {
-            tokens.insertBack(token);
-            token.done();
-          }
-          opStack ~= c;
+          assert(tokens.empty() || !opStack.empty());
+          appendToken(token, tokens);
+          Token opToken = new Token(Token.TokenType.OPEN_GROUP);
+          opToken.append(c);
+          appendToken(opToken, opStack);
         } else if (c == ')') {
           assert(!opStack.empty && !token.empty());
-          tokens.insertBack(token);
-          token.done();
-          while (opStack.back != '(') {
-            Token opToken = new Token(Token.TokenType.OPERATOR);
-            opToken.append(opStack.back);
-            tokens.insertBack(opToken);
+          appendToken(token, tokens);
+          while (opStack.back.type() != Token.TokenType.OPEN_GROUP) {
+            tokens ~= opStack.back;
             opStack.removeBack();
           }
           if (opStack.empty) {
@@ -127,38 +117,32 @@ public class Expression {
           assert(token.type() == Token.TokenType.VARIABLE);
           token.append(c);
         } else if (isspace(c)) {
+          appendToken(token, tokens);
           if (!token.isDone()) {
-            tokens ~= token;
-            token.done();
+            appendToken(token, tokens);
           }
         }
       }
 
-      if (!token.isDone()) {
-        tokens.insertBack(token);
-      }
+      appendToken(token, tokens);
 
       while (!opStack.empty) {
-        char top = opStack.back;
-        if (top == '(') {
+        Token top = opStack.back;
+        if (top.type() == Token.TokenType.OPEN_GROUP) {
           throw new ParenMismatch("column " ~ to!string(col));
         }
-        Token opToken = new Token(Token.TokenType.OPERATOR);
-        opToken.append(top);
-        tokens.insertBack(opToken);
+        tokens ~= top;
         opStack.removeBack();
       }
 
       Array!ExpressionNode nodeStack;
-      while (!tokens.empty()) {
-        Token top = tokens.back;
-        tokens.removeBack();
+      foreach (Token top; tokens) {
         switch (top.type()) {
         case Token.TokenType.VARIABLE:
-          nodeStack.insertBack(new ExpressionVariable(top.toString()));
+          nodeStack ~= new ExpressionVariable(top.toString());
           break;
         case Token.TokenType.CONSTANT:
-          nodeStack.insertBack(new ExpressionConstant(atof(top.toString().ptr)));
+          nodeStack ~= new ExpressionConstant(atof(top.toString().ptr));
           break;
         case Token.TokenType.NEGATE:
           ExpressionNode rhs = checkPop(nodeStack);
@@ -167,9 +151,9 @@ public class Expression {
 
           if (eop.isConstant()) {
             ExpressionContext ctx;
-            nodeStack.insertBack(new ExpressionConstant(eop.eval(ctx)));
+            nodeStack ~= new ExpressionConstant(eop.eval(ctx));
           } else {
-            nodeStack.insertBack(eop);
+            nodeStack ~= eop;
           }
 
           break;
@@ -201,9 +185,9 @@ public class Expression {
 
           if (eop.isConstant()) {
             ExpressionContext ctx;
-            nodeStack.insertBack(new ExpressionConstant(eop.eval(ctx)));
+            nodeStack ~= new ExpressionConstant(eop.eval(ctx));
           } else {
-            nodeStack.insertBack(eop);
+            nodeStack ~= eop;
           }
 
           break;
@@ -230,6 +214,27 @@ public class Expression {
       ExpressionNode node = arr.back;
       arr.removeBack();
       return node;
+    }
+
+    private void appendToken(ref Token t, ref Array!Token ts) {
+      if (!t.isDone()) {
+        ts ~= t;
+        t.done();
+      }
+    }
+
+    private ulong opPrio(char op) {
+      switch (op) {
+      case '+':
+      case '-':
+        return 1;
+      case '*':
+      case '/':
+      case '%':
+        return 2;
+      default:
+        return 0;
+      }
     }
 }
 
@@ -319,17 +324,27 @@ private class Token {
   public:
     public enum TokenType {
       OPERATOR,
-      VARIABLE,
       NEGATE,
-      CONSTANT
+      VARIABLE,
+      CONSTANT,
+      OPEN_GROUP,
+      CLOSE_GROUP,
     }
   private:
     char[] value;
     TokenType type_;
+    ulong priority_;
     bool done_;
 
-    public this(TokenType type) {
+    public this(ulong priority) {
+      type_ = TokenType.OPERATOR;
+      priority_ = priority;
+      done_ = false;
+    }
+
+    public this(TokenType type, ulong priority = 0) {
       type_ = type;
+      priority_ = priority;
       done_ = false;
     }
 
@@ -339,6 +354,10 @@ private class Token {
 
     public bool isDone() {
       return done_;
+    }
+
+    public ulong priority() {
+      return priority_;
     }
 
     public void append(char c) {
