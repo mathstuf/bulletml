@@ -1,4 +1,5 @@
-add_subdirectory(elements)
+add_subdirectory(data)
+#add_subdirectory(elements)
 
 set(bulletml_srcs
     parser.d
@@ -9,4 +10,5 @@ add_library(bulletml STATIC
     ${bulletml_srcs})
 target_link_libraries(bulletml
     LINK_PUBLIC
-        bulletml_elements)
+        bulletml_data)
+        #bulletml_elements)
