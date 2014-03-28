@@ -34,7 +34,9 @@ public class BulletMLElement {
   private:
     string name_;
 
-    public void setup(ElementParser p);
+    public void setup(ElementParser) {
+      assert(0);
+    }
 
     public string name() {
       return name_;
