@@ -48,7 +48,7 @@ public class Expression {
 
     public this(string expr) {
       Array!Token tokens;
-      Token token;
+      Token token = new Token(Token.TokenType.CONSTANT);
       Array!char opStack;
 
       ulong col = 0;
