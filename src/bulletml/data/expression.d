@@ -13,7 +13,17 @@ version(unittest) {
 
 private alias float Value;
 
-public class ExpressionContext {
+public interface ExpressionContext {
+  private:
+    public void set(string name, Value value);
+    public void remove(string name);
+    public Value get(string name);
+    public ExpressionContext clone();
+    public Value rand();
+    public Value rank();
+}
+
+public class DefaultExpressionContext: ExpressionContext {
   private:
     Value[string] variables;
   public:
@@ -36,7 +46,7 @@ public class ExpressionContext {
     }
 
     public ExpressionContext clone() {
-      ExpressionContext ctx = new ExpressionContext;
+      DefaultExpressionContext ctx = new DefaultExpressionContext;
       ctx.variables = variables;
       return ctx;
     }
