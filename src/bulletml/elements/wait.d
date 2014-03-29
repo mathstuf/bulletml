@@ -10,7 +10,7 @@ public class EWait: BulletMLElement {
   private:
     public override void setup(ElementParser p) {
       p.onText = (string s) {
-        value.frames = new Expression(s);
+        value.frames = parseExpression(s);
       };
 
       run(p);

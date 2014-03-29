@@ -28,7 +28,7 @@ public class EDirection: BulletMLElement {
       }
 
       p.onText = (string s) {
-        value.degrees = new Expression(s);
+        value.degrees = parseExpression(s);
       };
 
       run(p);

@@ -10,7 +10,7 @@ public class ETimes: BulletMLElement {
   private:
     public override void setup(ElementParser p) {
       p.onText = (string s) {
-        value.value = new Expression(s);
+        value.value = parseExpression(s);
       };
 
       run(p);

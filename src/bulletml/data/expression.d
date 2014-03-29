@@ -60,200 +60,193 @@ public class DefaultExpressionContext: ExpressionContext {
     }
 }
 
-public class Expression {
-  private:
-    ExpressionNode root;
+private Expression checkPop(ref Array!Expression arr) {
+  if (arr.empty()) {
+    throw new ExpressionError("Missing operand");
+  }
+  Expression node = arr.back;
+  arr.removeBack();
+  return node;
+}
 
-    public this(string expr) {
-      Array!Token tokens;
-      Token token = new Token(Token.TokenType.CONSTANT);
-      Array!Token opStack;
+private void appendToken(ref Token t, ref Array!Token ts) {
+  if (!t.isDone()) {
+    ts ~= t;
+    t.done();
+  }
+}
 
-      ulong col = 0;
-      token.done();
-      foreach (char c; expr) {
-        ++col;
+private ulong opPrio(char op) {
+  switch (op) {
+  case '+':
+  case '-':
+    return 1;
+  case '*':
+  case '/':
+  case '%':
+    return 2;
+  default:
+    return 0;
+  }
+}
 
-        if (c == '$') {
-          assert(token.isDone());
-          token = new Token(Token.TokenType.VARIABLE);
-        } else if (c == '+' ||
-                   c == '-' ||
-                   c == '*' ||
-                   c == '/' ||
-                   c == '%') {
-          if (c == '-' &&
-              (token.isDone() &&
-               (tokens.empty() ||
-                !opStack.empty()))) {
-            Token opToken = new Token(Token.TokenType.NEGATE, 100);
-            opToken.append(c);
-            appendToken(opToken, opStack);
-            continue;
-          }
-          assert(!token.empty());
-          appendToken(token, tokens);
-          Token opToken = new Token(opPrio(c));
-          opToken.append(c);
-          while (!opStack.empty()) {
-            Token top = opStack.back;
-            if (opToken.priority() <= top.priority()) {
-              appendToken(top, tokens);
-              opStack.removeBack();
-            } else {
-              break;
-            }
-          }
-          opStack ~= opToken;
-        } else if (c == '(') {
-          assert(tokens.empty() || !opStack.empty());
-          appendToken(token, tokens);
-          Token opToken = new Token(Token.TokenType.OPEN_GROUP);
-          opToken.append(c);
-          appendToken(opToken, opStack);
-        } else if (c == ')') {
-          assert(!opStack.empty && !token.empty());
-          appendToken(token, tokens);
-          while (opStack.back.type() != Token.TokenType.OPEN_GROUP) {
-            tokens ~= opStack.back;
-            opStack.removeBack();
-          }
-          if (opStack.empty) {
-            throw new ParenMismatch("column " ~ to!string(col));
-          }
+public Expression parseExpression(string expr) {
+  Array!Token tokens;
+  Token token = new Token(Token.TokenType.CONSTANT);
+  Array!Token opStack;
+
+  ulong col = 0;
+  token.done();
+  foreach (char c; expr) {
+    ++col;
+
+    if (c == '$') {
+      assert(token.isDone());
+      token = new Token(Token.TokenType.VARIABLE);
+    } else if (c == '+' ||
+               c == '-' ||
+               c == '*' ||
+               c == '/' ||
+               c == '%') {
+      if (c == '-' &&
+          (token.isDone() &&
+           (tokens.empty() ||
+            !opStack.empty()))) {
+        Token opToken = new Token(Token.TokenType.NEGATE, 100);
+        opToken.append(c);
+        appendToken(opToken, opStack);
+        continue;
+      }
+      assert(!token.empty());
+      appendToken(token, tokens);
+      Token opToken = new Token(opPrio(c));
+      opToken.append(c);
+      while (!opStack.empty()) {
+        Token top = opStack.back;
+        if (opToken.priority() <= top.priority()) {
+          appendToken(top, tokens);
           opStack.removeBack();
-        } else if (isdigit(c) ||
-                   c == '.') {
-          if (token.isDone()) {
-            token = new Token(Token.TokenType.CONSTANT);
-          }
-          assert(token.type() == Token.TokenType.CONSTANT ||
-                 (token.type() == Token.TokenType.VARIABLE &&
-                  !token.empty()));
-          token.append(c);
-        } else if (isalpha(c) || c == '_') {
-          assert(token.type() == Token.TokenType.VARIABLE);
-          token.append(c);
-        } else if (isspace(c)) {
-          appendToken(token, tokens);
-          if (!token.isDone()) {
-            appendToken(token, tokens);
-          }
+        } else {
+          break;
         }
       }
-
+      opStack ~= opToken;
+    } else if (c == '(') {
+      assert(tokens.empty() || !opStack.empty());
       appendToken(token, tokens);
-
-      while (!opStack.empty) {
-        Token top = opStack.back;
-        if (top.type() == Token.TokenType.OPEN_GROUP) {
-          throw new ParenMismatch("column " ~ to!string(col));
-        }
-        tokens ~= top;
+      Token opToken = new Token(Token.TokenType.OPEN_GROUP);
+      opToken.append(c);
+      appendToken(opToken, opStack);
+    } else if (c == ')') {
+      assert(!opStack.empty && !token.empty());
+      appendToken(token, tokens);
+      while (opStack.back.type() != Token.TokenType.OPEN_GROUP) {
+        tokens ~= opStack.back;
         opStack.removeBack();
       }
-
-      Array!ExpressionNode nodeStack;
-      foreach (Token top; tokens) {
-        switch (top.type()) {
-        case Token.TokenType.VARIABLE:
-          nodeStack ~= new ExpressionVariable(top.toString());
-          break;
-        case Token.TokenType.CONSTANT:
-          nodeStack ~= new ExpressionConstant(atof(top.toString().ptr));
-          break;
-        case Token.TokenType.NEGATE:
-          ExpressionNode rhs = checkPop(nodeStack);
-
-          ExpressionOperation eop = new ExpressionOperation(&subtract, new ExpressionConstant(0.0f), rhs);
-
-          if (eop.isConstant()) {
-            ExpressionContext ctx;
-            nodeStack ~= new ExpressionConstant(eop.eval(ctx));
-          } else {
-            nodeStack ~= eop;
-          }
-
-          break;
-        case Token.TokenType.OPERATOR:
-          ExpressionNode rhs = checkPop(nodeStack);
-          ExpressionNode lhs = checkPop(nodeStack);
-
-          Operation op;
-          switch (top.toString()) {
-          case "+":
-            op = &add;
-            break;
-          case "-":
-            op = &subtract;
-            break;
-          case "*":
-            op = &multiply;
-            break;
-          case "/":
-            op = &divide;
-            break;
-          case "%":
-            op = &modulo;
-            break;
-          default:
-            assert(0);
-          }
-          ExpressionOperation eop = new ExpressionOperation(op, lhs, rhs);
-
-          if (eop.isConstant()) {
-            ExpressionContext ctx;
-            nodeStack ~= new ExpressionConstant(eop.eval(ctx));
-          } else {
-            nodeStack ~= eop;
-          }
-
-          break;
-        default:
-          assert(0);
-        }
+      if (opStack.empty) {
+        throw new ParenMismatch("column " ~ to!string(col));
       }
-
-      root = checkPop(nodeStack);
-
-      if (nodeStack.length) {
-        throw new ExpressionError("Leftover tokens");
+      opStack.removeBack();
+    } else if (isdigit(c) ||
+               c == '.') {
+      if (token.isDone()) {
+        token = new Token(Token.TokenType.CONSTANT);
+      }
+      assert(token.type() == Token.TokenType.CONSTANT ||
+             (token.type() == Token.TokenType.VARIABLE &&
+              !token.empty()));
+      token.append(c);
+    } else if (isalpha(c) || c == '_') {
+      assert(token.type() == Token.TokenType.VARIABLE);
+      token.append(c);
+    } else if (isspace(c)) {
+      appendToken(token, tokens);
+      if (!token.isDone()) {
+        appendToken(token, tokens);
       }
     }
+  }
 
-    public Value eval(ExpressionContext ctx) {
-      return root.eval(ctx);
+  appendToken(token, tokens);
+
+  while (!opStack.empty) {
+    Token top = opStack.back;
+    if (top.type() == Token.TokenType.OPEN_GROUP) {
+      throw new ParenMismatch("column " ~ to!string(col));
     }
+    tokens ~= top;
+    opStack.removeBack();
+  }
 
-    private ExpressionNode checkPop(ref Array!ExpressionNode arr) {
-      if (arr.empty()) {
-        throw new ExpressionError("Missing operand");
+  Array!Expression nodeStack;
+  foreach (Token top; tokens) {
+    switch (top.type()) {
+    case Token.TokenType.VARIABLE:
+      nodeStack ~= new ExpressionVariable(top.toString());
+      break;
+    case Token.TokenType.CONSTANT:
+      nodeStack ~= new ExpressionConstant(atof(top.toString().ptr));
+      break;
+    case Token.TokenType.NEGATE:
+      Expression rhs = checkPop(nodeStack);
+
+      ExpressionOperation eop = new ExpressionOperation(&subtract, new ExpressionConstant(0.0f), rhs);
+
+      if (eop.isConstant()) {
+        ExpressionContext ctx;
+        nodeStack ~= new ExpressionConstant(eop.eval(ctx));
+      } else {
+        nodeStack ~= eop;
       }
-      ExpressionNode node = arr.back;
-      arr.removeBack();
-      return node;
-    }
 
-    private void appendToken(ref Token t, ref Array!Token ts) {
-      if (!t.isDone()) {
-        ts ~= t;
-        t.done();
-      }
-    }
+      break;
+    case Token.TokenType.OPERATOR:
+      Expression rhs = checkPop(nodeStack);
+      Expression lhs = checkPop(nodeStack);
 
-    private ulong opPrio(char op) {
-      switch (op) {
-      case '+':
-      case '-':
-        return 1;
-      case '*':
-      case '/':
-      case '%':
-        return 2;
+      Operation op;
+      switch (top.toString()) {
+      case "+":
+        op = &add;
+        break;
+      case "-":
+        op = &subtract;
+        break;
+      case "*":
+        op = &multiply;
+        break;
+      case "/":
+        op = &divide;
+        break;
+      case "%":
+        op = &modulo;
+        break;
       default:
-        return 0;
+        assert(0);
       }
+      ExpressionOperation eop = new ExpressionOperation(op, lhs, rhs);
+
+      if (eop.isConstant()) {
+        ExpressionContext ctx;
+        nodeStack ~= new ExpressionConstant(eop.eval(ctx));
+      } else {
+        nodeStack ~= eop;
+      }
+
+      break;
+    default:
+      assert(0);
     }
+  }
+
+  Expression root = checkPop(nodeStack);
+
+  if (nodeStack.length) {
+    throw new ExpressionError("Leftover tokens");
+  }
+
+  return root;
 }
 
 alias Value function(Value, Value) Operation;
@@ -278,15 +271,15 @@ private Value modulo(Value lhs, Value rhs) {
   return lhs % rhs;
 }
 
-private interface ExpressionNode {
+public interface Expression {
   public Value eval(ExpressionContext ctx);
   public bool isConstant();
 }
 
-private class ExpressionConstant: ExpressionNode {
-  private:
+public class ExpressionConstant: Expression {
+  public:
     Value value;
-
+  private:
     public this(Value value) {
       this.value = value;
     }
@@ -300,10 +293,10 @@ private class ExpressionConstant: ExpressionNode {
     }
 }
 
-private class ExpressionVariable: ExpressionNode {
-  private:
+public class ExpressionVariable: Expression {
+  public:
     string name;
-
+  private:
     public this(string name) {
       this.name = name;
     }
@@ -317,13 +310,13 @@ private class ExpressionVariable: ExpressionNode {
     }
 }
 
-private class ExpressionOperation: ExpressionNode {
-  private:
+public class ExpressionOperation: Expression {
+  public:
     Operation op;
-    ExpressionNode lhs;
-    ExpressionNode rhs;
-
-    public this(Operation op, ExpressionNode lhs, ExpressionNode rhs) {
+    Expression lhs;
+    Expression rhs;
+  private:
+    public this(Operation op, Expression lhs, Expression rhs) {
       this.op = op;
       this.lhs = lhs;
       this.rhs = rhs;
@@ -424,79 +417,79 @@ unittest {
 
   // Values
   {
-    Expression tint = new Expression("1");
+    Expression tint = parseExpression("1");
     fuzzyCmp(tint.eval(ctx), 1f);
 
-    Expression tdecimal = new Expression("1.5");
+    Expression tdecimal = parseExpression("1.5");
     fuzzyCmp(tdecimal.eval(ctx), 1.5f);
 
-    Expression tleadzero = new Expression("0.5");
+    Expression tleadzero = parseExpression("0.5");
     fuzzyCmp(tleadzero.eval(ctx), 0.5f);
 
-    Expression tnoleadzero = new Expression(".5");
+    Expression tnoleadzero = parseExpression(".5");
     fuzzyCmp(tnoleadzero.eval(ctx), 0.5f);
   }
 
   // Basic expressions
   {
-    Expression tadd = new Expression("1+2");
+    Expression tadd = parseExpression("1+2");
     fuzzyCmp(tadd.eval(ctx), 3.0f);
 
-    Expression tsub = new Expression("10-1");
+    Expression tsub = parseExpression("10-1");
     fuzzyCmp(tsub.eval(ctx), 9.0f);
 
-    Expression tmult = new Expression("2*3");
+    Expression tmult = parseExpression("2*3");
     fuzzyCmp(tmult.eval(ctx), 6.0f);
 
-    Expression tdiv = new Expression("1/2");
+    Expression tdiv = parseExpression("1/2");
     fuzzyCmp(tdiv.eval(ctx), 0.5f);
 
-    Expression tmod = new Expression("1%2");
+    Expression tmod = parseExpression("1%2");
     fuzzyCmp(tmod.eval(ctx), 1.0f);
 
-    Expression tneg = new Expression("-1");
+    Expression tneg = parseExpression("-1");
     fuzzyCmp(tneg.eval(ctx), -1.0f);
   }
 
   // Whitespace
   {
-    Expression tleadwhite = new Expression(" 1+1");
+    Expression tleadwhite = parseExpression(" 1+1");
     fuzzyCmp(tleadwhite.eval(ctx), 2.0f);
 
-    Expression ttrailwhite = new Expression("1+1 ");
+    Expression ttrailwhite = parseExpression("1+1 ");
     fuzzyCmp(ttrailwhite.eval(ctx), 2.0f);
 
-    Expression tpreop = new Expression("1 +1");
+    Expression tpreop = parseExpression("1 +1");
     fuzzyCmp(tpreop.eval(ctx), 2.0f);
 
-    Expression tpostop = new Expression("1+ 1");
+    Expression tpostop = parseExpression("1+ 1");
     fuzzyCmp(tpostop.eval(ctx), 2.0f);
   }
 
   // Order of operations
   {
-    Expression taddmult = new Expression("1+2*2");
+    Expression taddmult = parseExpression("1+2*2");
     fuzzyCmp(taddmult.eval(ctx), 5.0f);
 
-    Expression tmultadd = new Expression("2*2+1");
+    Expression tmultadd = parseExpression("2*2+1");
     fuzzyCmp(tmultadd.eval(ctx), 5.0f);
   }
 
   // Parentheses
   {
-    Expression tparen = new Expression("(1+1)");
+    Expression tparen = parseExpression("(1+1)");
     fuzzyCmp(tparen.eval(ctx), 2.0f);
 
-    Expression taddmult2 = new Expression("2*(2+1)");
+    Expression taddmult2 = parseExpression("2*(2+1)");
     fuzzyCmp(taddmult2.eval(ctx), 6.0f);
   }
 
   // Compound
   {
-    Expression tnegmult = new Expression("1*-1");
+    Expression tnegmult = parseExpression("1*-1");
     fuzzyCmp(tnegmult.eval(ctx), -1.0f);
 
-    Expression tnegparen = new Expression("(-1)");
+    Expression tnegparen = parseExpression("(-1)");
     fuzzyCmp(tnegparen.eval(ctx), -1.0f);
   }
 
@@ -506,13 +499,13 @@ unittest {
 
   // Variables
   {
-    Expression texpn = new Expression("$four");
+    Expression texpn = parseExpression("$four");
     fuzzyCmp(texpn.eval(ctx), 4.0f);
 
-    Expression tvarmath = new Expression("$five+$four");
+    Expression tvarmath = parseExpression("$five+$four");
     fuzzyCmp(tvarmath.eval(ctx), 9.0f);
 
-    Expression tunderscore = new Expression("$under_score");
+    Expression tunderscore = parseExpression("$under_score");
     fuzzyCmp(tunderscore.eval(ctx), 1.0f);
   }
 
@@ -520,7 +513,7 @@ unittest {
 
   // Variables
   {
-    Expression trebind = new Expression("$four");
+    Expression trebind = parseExpression("$four");
     fuzzyCmp(trebind.eval(ctx), 5.0f);
   }
 
@@ -528,7 +521,7 @@ unittest {
   {
     bool caught = false;
     try {
-      Expression e = new Expression("$novar");
+      Expression e = parseExpression("$novar");
       e.eval(ctx);
     } catch (RangeError) {
       caught = true;
@@ -537,7 +530,7 @@ unittest {
 
     caught = false;
     try {
-      new Expression("(");
+      parseExpression("(");
     } catch (ParenMismatch) {
       caught = true;
     }
@@ -545,7 +538,7 @@ unittest {
 
     caught = false;
     try {
-      new Expression("+");
+      parseExpression("+");
     } catch (AssertError) {
       caught = true;
     }
@@ -553,7 +546,7 @@ unittest {
 
     caught = false;
     try {
-      new Expression("4+");
+      parseExpression("4+");
     } catch (ExpressionError) {
       caught = true;
     }

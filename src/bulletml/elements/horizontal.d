@@ -27,7 +27,7 @@ public class EHorizontal: BulletMLElement {
       }
 
       p.onText = (string s) {
-        value.change = new Expression(s);
+        value.change = parseExpression(s);
       };
 
       run(p);
