@@ -1,21 +1,16 @@
 set(elements_srcs
-    _all.d
     _element.d
-    _expression.d
-    _types.d
 
     accel.d
     action.d
-    actionref.d
     bullet.d
     bulletml.d
-    bulletref.d
     changedirection.d
     changespeed.d
     direction.d
     fire.d
-    fireref.d
     horizontal.d
+    oref.d
     param.d
     repeat.d
     speed.d

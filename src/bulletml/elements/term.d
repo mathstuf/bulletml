@@ -2,13 +2,15 @@ module bulletml.elements.term;
 
 private import bulletml.elements._element;
 
+private import bulletml.data.term;
+
 public class ETerm: BulletMLElement {
   public:
-    string termExpr;
+    mixin Storage!Term;
   private:
     public override void setup(ElementParser p) {
       p.onText = (string s) {
-        termExpr = s;
+        value.value = new Expression(s);
       };
 
       run(p);

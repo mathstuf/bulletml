@@ -1,36 +1,34 @@
 module bulletml.elements.direction;
 
 private import bulletml.elements._element;
-private import bulletml.elements._types;
 
-private import core.stdc.stdlib;
+private import bulletml.data.direction;
 
 public class EDirection: BulletMLElement {
   public:
-    Direction direction;
-    string degreesExpr;
+    mixin Storage!Direction;
   private:
     public override void setup(ElementParser p) {
       string type = p.tag.attr["type"];
       switch (type) {
       case "aim":
-        direction = Direction.AIM;
+        value.type = Direction.DirectionType.AIM;
         break;
       case "absolute":
-        direction = Direction.ABSOLUTE;
+        value.type = Direction.DirectionType.ABSOLUTE;
         break;
       case "relative":
-        direction = Direction.RELATIVE;
+        value.type = Direction.DirectionType.RELATIVE;
         break;
       case "sequence":
-        direction = Direction.SEQUENCE;
+        value.type = Direction.DirectionType.SEQUENCE;
         break;
       default:
-        throw new InvalidAttribute("Invalid attribute for direction: " ~ type);
+        throw new InvalidAttribute("type", type, p);
       }
 
       p.onText = (string s) {
-        degreesExpr = s;
+        value.degrees = new Expression(s);
       };
 
       run(p);

@@ -1,33 +1,33 @@
 module bulletml.elements.horizontal;
 
 private import bulletml.elements._element;
-private import bulletml.elements._types;
+
+private import bulletml.data.horizontal;
 
 private import core.stdc.stdlib;
 
 public class EHorizontal: BulletMLElement {
   public:
-    Motion motion;
-    string amountExpr;
+    mixin Storage!Horizontal;
   private:
     public override void setup(ElementParser p) {
-      string type = p.tag.attr["type"];
-      switch (type) {
+      string typeStr = p.tag.attr["type"];
+      switch (typeStr) {
       case "absolute":
-        motion = Motion.ABSOLUTE;
+        value.type = ChangeType.ABSOLUTE;
         break;
       case "relative":
-        motion = Motion.RELATIVE;
+        value.type = ChangeType.RELATIVE;
         break;
       case "sequence":
-        motion = Motion.SEQUENCE;
+        value.type = ChangeType.SEQUENCE;
         break;
       default:
-        throw new InvalidAttribute("Invalid attribute for horizontal: " ~ type);
+        throw new InvalidAttribute("type", typeStr, p);
       }
 
       p.onText = (string s) {
-        amountExpr = s;
+        value.change = new Expression(s);
       };
 
       run(p);
