@@ -27,7 +27,9 @@ public class ExpressionContext {
 
     public Value get(string name) {
       if (name == "rand") {
-        return uniform!"[]"(0.0f, 1.0f);
+        return rand();
+      } else if (name == "rank") {
+        return rank();
       }
 
       return variables[name];
@@ -37,6 +39,14 @@ public class ExpressionContext {
       ExpressionContext ctx = new ExpressionContext;
       ctx.variables = variables;
       return ctx;
+    }
+
+    public Value rand() {
+      return uniform!"[]"(0.0f, 1.0f);
+    }
+
+    public Value rank() {
+      return 1;
     }
 }
 
