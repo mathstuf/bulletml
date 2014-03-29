@@ -11,14 +11,12 @@ version(unittest) {
   private import core.exception;
 }
 
-private alias ExpressionContext.Value EValue;
+private alias float Value;
 
 public class ExpressionContext {
   private:
     Value[string] variables;
   public:
-    alias float Value;
-
     public void set(string name, Value value) {
       variables[name] = value;
     }
@@ -203,7 +201,7 @@ public class Expression {
       }
     }
 
-    public EValue eval(ExpressionContext ctx) {
+    public Value eval(ExpressionContext ctx) {
       return root.eval(ctx);
     }
 
@@ -238,42 +236,42 @@ public class Expression {
     }
 }
 
-alias EValue function(EValue, EValue) Operation;
+alias Value function(Value, Value) Operation;
 
-private EValue add(EValue lhs, EValue rhs) {
+private Value add(Value lhs, Value rhs) {
   return lhs + rhs;
 }
 
-private EValue subtract(EValue lhs, EValue rhs) {
+private Value subtract(Value lhs, Value rhs) {
   return lhs - rhs;
 }
 
-private EValue multiply(EValue lhs, EValue rhs) {
+private Value multiply(Value lhs, Value rhs) {
   return lhs * rhs;
 }
 
-private EValue divide(EValue lhs, EValue rhs) {
+private Value divide(Value lhs, Value rhs) {
   return lhs / rhs;
 }
 
-private EValue modulo(EValue lhs, EValue rhs) {
+private Value modulo(Value lhs, Value rhs) {
   return lhs % rhs;
 }
 
 private interface ExpressionNode {
-  public EValue eval(ExpressionContext ctx);
+  public Value eval(ExpressionContext ctx);
   public bool isConstant();
 }
 
 private class ExpressionConstant: ExpressionNode {
   private:
-    EValue value;
+    Value value;
 
-    public this(EValue value) {
+    public this(Value value) {
       this.value = value;
     }
 
-    public EValue eval(ExpressionContext) {
+    public Value eval(ExpressionContext) {
       return value;
     }
 
@@ -290,7 +288,7 @@ private class ExpressionVariable: ExpressionNode {
       this.name = name;
     }
 
-    public EValue eval(ExpressionContext ctx) {
+    public Value eval(ExpressionContext ctx) {
       return ctx.get(name);
     }
 
@@ -311,7 +309,7 @@ private class ExpressionOperation: ExpressionNode {
       this.rhs = rhs;
     }
 
-    public EValue eval(ExpressionContext ctx) {
+    public Value eval(ExpressionContext ctx) {
       return op(lhs.eval(ctx), rhs.eval(ctx));
     }
 
@@ -397,12 +395,12 @@ public class ExpressionError: object.Exception {
 }
 
 unittest {
-  EValue epsilon = 1e-8;
-  void fuzzyCmp(EValue a, EValue b) {
+  Value epsilon = 1e-8;
+  void fuzzyCmp(Value a, Value b) {
     assert((a - b) < epsilon);
   }
 
-  ExpressionContext ctx = new ExpressionContext;
+  DefaultExpressionContext ctx = new DefaultExpressionContext;
 
   // Values
   {
