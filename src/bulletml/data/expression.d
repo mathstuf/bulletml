@@ -18,6 +18,7 @@ public interface ExpressionContext {
     public void set(string name, Value value);
     public void remove(string name);
     public Value get(string name);
+    public Expression param(size_t idx);
     public ExpressionContext clone();
     public Value rand();
     public Value rank();
@@ -26,7 +27,15 @@ public interface ExpressionContext {
 public class DefaultExpressionContext: ExpressionContext {
   private:
     Value[string] variables;
+    Expression params[];
   public:
+    public this() {
+    }
+
+    public this(Expression params[]) {
+      this.params = params;
+    }
+
     public void set(string name, Value value) {
       variables[name] = value;
     }
@@ -45,9 +54,14 @@ public class DefaultExpressionContext: ExpressionContext {
       return variables[name];
     }
 
+    public Expression param(size_t idx) {
+      return params[idx];
+    }
+
     public ExpressionContext clone() {
       DefaultExpressionContext ctx = new DefaultExpressionContext;
       ctx.variables = variables;
+      ctx.params = params;
       return ctx;
     }
 
