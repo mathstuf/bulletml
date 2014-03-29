@@ -41,6 +41,15 @@ public class DuplicateTag: InvalidBulletML {
     }
 }
 
+public mixin template Storage(T) {
+  public:
+    T* value;
+  private:
+    public this(T value) {
+      this.value = &value;
+    }
+}
+
 public class BulletMLElement {
   private:
     string name_;
