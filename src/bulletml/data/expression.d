@@ -197,6 +197,13 @@ public Expression parseExpression(string expr) {
     } else if (isdigit(c)) {
       // Found a number.
 
+      // If this is an empty variable, this is actually a parameter.
+      if (!token.isDone() &&
+          token.type() == Token.TokenType.VARIABLE &&
+          token.empty()) {
+        token = new Token(Token.TokenType.PARAMETER);
+      }
+
       // If this is a new number, create the token.
       if (token.isDone()) {
         token = new Token(Token.TokenType.CONSTANT);
@@ -206,6 +213,7 @@ public Expression parseExpression(string expr) {
       // digit is not the first character (also disallow '.' in variable
       // names).
       assert(token.type() == Token.TokenType.CONSTANT ||
+             token.type() == Token.TokenType.PARAMETER ||
              (token.type() == Token.TokenType.VARIABLE &&
               !token.empty()));
 
@@ -263,6 +271,9 @@ public Expression parseExpression(string expr) {
       break;
     case Token.TokenType.CONSTANT:
       nodeStack ~= new ExpressionConstant(to!float(top.toString()));
+      break;
+    case Token.TokenType.PARAMETER:
+      nodeStack ~= new ExpressionParameter(to!size_t(top.toString()));
       break;
     case Token.TokenType.NEGATE:
       Expression rhs = checkPop(nodeStack);
@@ -376,6 +387,23 @@ public class ExpressionConstant: Expression {
     }
 }
 
+public class ExpressionParameter: Expression {
+  public:
+    size_t idx;
+  private:
+    public this(size_t idx) {
+      this.idx = idx;
+    }
+
+    public Value opCall(ExpressionContext ctx) {
+      return ctx.param(idx)(ctx);
+    }
+
+    public bool isConstant() {
+      return false;
+    }
+}
+
 public class ExpressionVariable: Expression {
   public:
     string name;
@@ -421,6 +449,7 @@ private class Token {
       NEGATE,
       VARIABLE,
       CONSTANT,
+      PARAMETER,
       OPEN_GROUP,
       CLOSE_GROUP,
     }
