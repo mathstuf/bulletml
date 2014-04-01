@@ -194,8 +194,7 @@ public Expression parseExpression(string expr) {
         throw new ParenMismatch("column " ~ to!string(col));
       }
       opStack.removeBack();
-    } else if (isdigit(c) ||
-               c == '.') {
+    } else if (isdigit(c)) {
       // Found a number.
 
       // If this is a new number, create the token.
@@ -208,8 +207,17 @@ public Expression parseExpression(string expr) {
       // names).
       assert(token.type() == Token.TokenType.CONSTANT ||
              (token.type() == Token.TokenType.VARIABLE &&
-              !token.empty() &&
-              c != '.')); // FIXME: This is nasty to do here.
+              !token.empty()));
+
+      // Append to the token.
+      token.append(c);
+    } else if (c == '.') {
+      // If this is a new token, create a number.
+      if (token.isDone()) {
+        token = new Token(Token.TokenType.CONSTANT);
+      }
+
+      assert(token.type() == Token.TokenType.CONSTANT);
 
       // Append to the token.
       token.append(c);
