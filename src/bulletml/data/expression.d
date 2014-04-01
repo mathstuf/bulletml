@@ -149,8 +149,9 @@ public Expression parseExpression(string expr) {
       opToken.append(c);
 
       // Pop operators to the output while the priority is higher than the new
-      // operator.
-      while (!opStack.empty()) {
+      // operator. Also stop once a non-operator is hit.
+      while (!opStack.empty() &&
+             opStack.back.type() == Token.TokenType.OPERATOR) {
         Token top = opStack.back;
         if (opToken.priority() <= top.priority()) {
           appendToken(top, tokens);
