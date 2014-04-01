@@ -224,9 +224,6 @@ public Expression parseExpression(string expr) {
 
       // Push the current token to the output.
       appendToken(token, tokens);
-      if (!token.isDone()) {
-        appendToken(token, tokens);
-      }
     }
   }
 
