@@ -112,17 +112,23 @@ public Expression parseExpression(string expr) {
 
   ulong col = 0;
   token.done();
+  // Parse the input.
   foreach (char c; expr) {
     ++col;
 
+    // Check for a variable reference.
     if (c == '$') {
+      // We must have a fully processed token before this (operator or
+      // parentheses).
       assert(token.isDone());
+      // Start a variable token.
       token = new Token(Token.TokenType.VARIABLE);
     } else if (c == '+' ||
                c == '-' ||
                c == '*' ||
                c == '/' ||
                c == '%') {
+      // Check for unary negation.
       if (c == '-' &&
           (token.isDone() &&
            (tokens.empty() ||
@@ -132,10 +138,18 @@ public Expression parseExpression(string expr) {
         appendToken(opToken, opStack);
         continue;
       }
+      // The previous token must not have been empty.
       assert(!token.empty());
+
+      // Push the current token to the output.
       appendToken(token, tokens);
+
+      // Create the operator token.
       Token opToken = new Token(opPrio(c));
       opToken.append(c);
+
+      // Pop operators to the output while the priority is higher than the new
+      // operator.
       while (!opStack.empty()) {
         Token top = opStack.back;
         if (opToken.priority() <= top.priority()) {
@@ -145,37 +159,67 @@ public Expression parseExpression(string expr) {
           break;
         }
       }
+
+      // Push the operator onto the operator stack.
       opStack ~= opToken;
     } else if (c == '(') {
+      // An open parenthesis must either be the first token or there has to be
+      // an operator available.
       assert(tokens.empty() || !opStack.empty());
+
+      // Push the current token to the output.
       appendToken(token, tokens);
+
+      // Create the open parenthesis token and put it on the operator stack.
       Token opToken = new Token(Token.TokenType.OPEN_GROUP);
       opToken.append(c);
       appendToken(opToken, opStack);
     } else if (c == ')') {
+      // There must be something on the stack (at least an open parenthesis)
+      // and a non-empty token (no trailing operator).
       assert(!opStack.empty && !token.empty());
+
+      // Push the current token to the output.
       appendToken(token, tokens);
+
+      // Pop tokens until an open parenthesis is encountered.
       while (opStack.back.type() != Token.TokenType.OPEN_GROUP) {
         tokens ~= opStack.back;
         opStack.removeBack();
       }
+
+      // Remove the opening parenthesis.
       if (opStack.empty) {
         throw new ParenMismatch("column " ~ to!string(col));
       }
       opStack.removeBack();
     } else if (isdigit(c) ||
                c == '.') {
+      // Found a number.
+
+      // If this is a new number, create the token.
       if (token.isDone()) {
         token = new Token(Token.TokenType.CONSTANT);
       }
+
+      // Enforce that the token is a constant or that it is a variable and the
+      // digit is not the first character.
       assert(token.type() == Token.TokenType.CONSTANT ||
              (token.type() == Token.TokenType.VARIABLE &&
               !token.empty()));
+
+      // Append to the token.
       token.append(c);
     } else if (isalpha(c) || c == '_') {
+      // The token must be a variable.
       assert(token.type() == Token.TokenType.VARIABLE);
+
+      // Append to the token.
       token.append(c);
     } else if (isspace(c)) {
+      // Whitespace.
+
+      // Push the current token to the output.
       appendToken(token, tokens);
       if (!token.isDone()) {
         appendToken(token, tokens);
@@ -183,17 +227,23 @@ public Expression parseExpression(string expr) {
     }
   }
 
+  // Push the last token into the output.
   appendToken(token, tokens);
 
+  // Pop the remaining operators.
   while (!opStack.empty) {
     Token top = opStack.back;
+    // Check for any rogue open parentheses.
     if (top.type() == Token.TokenType.OPEN_GROUP) {
       throw new ParenMismatch("column " ~ to!string(col));
     }
+
+    // Manually push since the opTokens are 'done'.
     tokens ~= top;
     opStack.removeBack();
   }
 
+  // Build the expression tree.
   Array!Expression nodeStack;
   foreach (Token top; tokens) {
     switch (top.type()) {
@@ -206,8 +256,10 @@ public Expression parseExpression(string expr) {
     case Token.TokenType.NEGATE:
       Expression rhs = checkPop(nodeStack);
 
+      // Simulate negation with subtraction.
       ExpressionOperation eop = new ExpressionOperation(&subtract, new ExpressionConstant(0.0f), rhs);
 
+      // Perform constant folding.
       if (eop.isConstant()) {
         ExpressionContext ctx;
         nodeStack ~= new ExpressionConstant(eop.eval(ctx));
@@ -220,6 +272,7 @@ public Expression parseExpression(string expr) {
       Expression rhs = checkPop(nodeStack);
       Expression lhs = checkPop(nodeStack);
 
+      // Find the operator's implementation.
       Operation op;
       switch (top.toString()) {
       case "+":
@@ -242,6 +295,7 @@ public Expression parseExpression(string expr) {
       }
       ExpressionOperation eop = new ExpressionOperation(op, lhs, rhs);
 
+      // Perform constant folding.
       if (eop.isConstant()) {
         ExpressionContext ctx;
         nodeStack ~= new ExpressionConstant(eop.eval(ctx));
@@ -255,8 +309,11 @@ public Expression parseExpression(string expr) {
     }
   }
 
+  // Get the remaining expression.
   Expression root = checkPop(nodeStack);
 
+  // Extra operators are necessary (should have been caught when adding the
+  // operator in the first place.
   if (nodeStack.length) {
     throw new ExpressionError("Leftover tokens");
   }
