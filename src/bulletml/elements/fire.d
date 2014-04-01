@@ -22,7 +22,7 @@ public class EFire: BulletMLElement {
 
       alias Algebraic!(EBullet, EORef!Bullet) Parser;
 
-      parseManyOf!Parser(p, tags, value.bullets);
+      parseOneOf!Parser(p, tags, value.bullet);
 
       run(p);
     }

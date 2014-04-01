@@ -17,7 +17,7 @@ public class Fire {
         Bullet,
         ORef!Bullet,
         ) FBullet;
-    FBullet bullets[];
+    FBullet bullet;
   private:
     public this() {
     }

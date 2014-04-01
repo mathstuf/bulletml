@@ -20,7 +20,7 @@ public class ERepeat: BulletMLElement {
 
       alias Algebraic!(EAction, EORef!Action) Parser;
 
-      parseManyOf!Parser(p, tags, value.actions);
+      parseOneOf!Parser(p, tags, value.action);
 
       run(p);
     }
