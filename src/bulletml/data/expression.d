@@ -25,56 +25,6 @@ public interface ExpressionContext {
     public Value rank();
 }
 
-public class DefaultExpressionContext: ExpressionContext {
-  private:
-    Value[string] variables;
-    Expression params[];
-  public:
-    public this() {
-    }
-
-    public this(Expression params[]) {
-      this.params = params;
-    }
-
-    public void set(string name, Value value) {
-      variables[name] = value;
-    }
-
-    public void remove(string name) {
-      variables.remove(name);
-    }
-
-    public Value get(string name) {
-      if (name == "rand") {
-        return rand();
-      } else if (name == "rank") {
-        return rank();
-      }
-
-      return variables[name];
-    }
-
-    public Expression param(size_t idx) {
-      return params[idx];
-    }
-
-    public ExpressionContext clone() {
-      DefaultExpressionContext ctx = new DefaultExpressionContext;
-      ctx.variables = variables;
-      ctx.params = params;
-      return ctx;
-    }
-
-    public Value rand() {
-      return uniform!"[]"(0.0f, 1.0f);
-    }
-
-    public Value rank() {
-      return 1;
-    }
-}
-
 private Expression checkPop(ref Array!Expression arr) {
   if (arr.empty()) {
     throw new ExpressionError("Missing operand");
@@ -520,6 +470,56 @@ public class ExpressionError: object.Exception {
 }
 
 unittest {
+  class SimpleExpressionContext: ExpressionContext {
+    private:
+      Value[string] variables;
+      Expression params[];
+    public:
+      public this() {
+      }
+
+      public this(Expression params[]) {
+        this.params = params;
+      }
+
+      public void set(string name, Value value) {
+        variables[name] = value;
+      }
+
+      public void remove(string name) {
+        variables.remove(name);
+      }
+
+      public Value get(string name) {
+        if (name == "rand") {
+          return rand();
+        } else if (name == "rank") {
+          return rank();
+        }
+
+        return variables[name];
+      }
+
+      public Expression param(size_t idx) {
+        return params[idx];
+      }
+
+      public ExpressionContext clone() {
+        SimpleExpressionContext ctx = new SimpleExpressionContext;
+        ctx.variables = variables;
+        ctx.params = params;
+        return ctx;
+      }
+
+      public Value rand() {
+        return uniform!"[]"(0.0f, 1.0f);
+      }
+
+      public Value rank() {
+        return 1;
+      }
+  }
+
   Value epsilon = 1e-8;
   bool success = true;
 
@@ -535,7 +535,7 @@ unittest {
     }
   }
 
-  DefaultExpressionContext ctx = new DefaultExpressionContext;
+  SimpleExpressionContext ctx = new SimpleExpressionContext;
 
   // Values
   {
