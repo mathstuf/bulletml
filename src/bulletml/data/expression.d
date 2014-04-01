@@ -224,6 +224,9 @@ public Expression parseExpression(string expr) {
 
       // Push the current token to the output.
       appendToken(token, tokens);
+    } else {
+      // Unknown character.
+      throw new ExpressionError("unrecognized character: " ~ to!string(c));
     }
   }
 
