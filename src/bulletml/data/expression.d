@@ -9,6 +9,7 @@ private import std.random;
 version(unittest) {
   private import core.exception;
   private import std.math;
+  private import std.stdio;
 }
 
 private alias float Value;
@@ -483,103 +484,69 @@ public class ExpressionError: object.Exception {
 
 unittest {
   Value epsilon = 1e-8;
-  void fuzzyCmp(Value a, Value b) {
-    assert(fabs(a - b) < epsilon);
+  bool success = true;
+
+  void testExpr(string expr, Value expected, ExpressionContext ctx) {
+    Expression e = parseExpression(expr);
+    Value actual = e(ctx);
+    if (epsilon < fabs(actual - expected)) {
+      writeln("--------");
+      writeln("Expression: " ~ expr);
+      writeln("Expected  : " ~ to!string(expected));
+      writeln("Actual    : " ~ to!string(actual));
+      success = false;
+    }
   }
 
   DefaultExpressionContext ctx = new DefaultExpressionContext;
 
   // Values
   {
-    Expression tint = parseExpression("1");
-    fuzzyCmp(tint(ctx), 1f);
-
-    Expression tdecimal = parseExpression("1.5");
-    fuzzyCmp(tdecimal(ctx), 1.5f);
-
-    Expression tleadzero = parseExpression("0.5");
-    fuzzyCmp(tleadzero(ctx), 0.5f);
-
-    Expression tnoleadzero = parseExpression(".5");
-    fuzzyCmp(tnoleadzero(ctx), 0.5f);
+    testExpr("1", 1f, ctx);
+    testExpr("1.5", 1.5f, ctx);
+    testExpr("0.5", 0.5f, ctx);
+    testExpr(".5", 0.5f, ctx);
   }
 
   // Basic expressions
   {
-    Expression tadd = parseExpression("1+2");
-    fuzzyCmp(tadd(ctx), 3.0f);
-
-    Expression tsub = parseExpression("10-1");
-    fuzzyCmp(tsub(ctx), 9.0f);
-
-    Expression tmult = parseExpression("2*3");
-    fuzzyCmp(tmult(ctx), 6.0f);
-
-    Expression tdiv = parseExpression("1/2");
-    fuzzyCmp(tdiv(ctx), 0.5f);
-
-    Expression tmod = parseExpression("1%2");
-    fuzzyCmp(tmod(ctx), 1.0f);
-
-    Expression tneg = parseExpression("-1");
-    fuzzyCmp(tneg(ctx), -1.0f);
+    testExpr("1+2", 3.0f, ctx);
+    testExpr("10-1", 9.0f, ctx);
+    testExpr("2*3", 6.0f, ctx);
+    testExpr("1/2", 0.5f, ctx);
+    testExpr("1%2", 1.0f, ctx);
+    testExpr("-1", -1.0f, ctx);
   }
 
   // Whitespace
   {
-    Expression tleadwhite = parseExpression(" 1+1");
-    fuzzyCmp(tleadwhite(ctx), 2.0f);
-
-    Expression ttrailwhite = parseExpression("1+1 ");
-    fuzzyCmp(ttrailwhite(ctx), 2.0f);
-
-    Expression tpreop = parseExpression("1 +1");
-    fuzzyCmp(tpreop(ctx), 2.0f);
-
-    Expression tpostop = parseExpression("1+ 1");
-    fuzzyCmp(tpostop(ctx), 2.0f);
+    testExpr(" 1+1", 2.0f, ctx);
+    testExpr("1+1 ", 2.0f, ctx);
+    testExpr("1 +1", 2.0f, ctx);
+    testExpr("1+ 1", 2.0f, ctx);
   }
 
   // Order of operations
   {
-    Expression taddmult = parseExpression("1+2*2");
-    fuzzyCmp(taddmult(ctx), 5.0f);
-
-    Expression tmultadd = parseExpression("2*2+1");
-    fuzzyCmp(tmultadd(ctx), 5.0f);
+    testExpr("1+2*2", 5.0f, ctx);
+    testExpr("2*2+1", 5.0f, ctx);
   }
 
   // Parentheses
   {
-    Expression tparen = parseExpression("(1+1)");
-    fuzzyCmp(tparen(ctx), 2.0f);
-
-    Expression taddmult2 = parseExpression("2*(2+1)");
-    fuzzyCmp(taddmult2(ctx), 6.0f);
-
-    Expression tmultadd2 = parseExpression("(2+1)*2");
-    fuzzyCmp(tmultadd2(ctx), 6.0f);
-
-    Expression tpair = parseExpression("(2+1)*(2+3)");
-    fuzzyCmp(tpair(ctx), 15.0f);
-
-    Expression tpair2 = parseExpression("(2*1)+(2*3)");
-    fuzzyCmp(tpair2(ctx), 8.0f);
-
-    Expression tnested = parseExpression("(4*(1+2))*2");
-    fuzzyCmp(tnested(ctx), 24.0f);
-
-    Expression tnested2 = parseExpression("(4+(1+2))+2");
-    fuzzyCmp(tnested2(ctx), 9.0f);
+    testExpr("(1+1)", 2.0f, ctx);
+    testExpr("2*(2+1)", 6.0f, ctx);
+    testExpr("(2+1)*2", 6.0f, ctx);
+    testExpr("(2+1)*(2+3)", 15.0f, ctx);
+    testExpr("(2*1)+(2*3)", 8.0f, ctx);
+    testExpr("(4*(1+2))*2", 24.0f, ctx);
+    testExpr("(4+(1+2))+2", 9.0f, ctx);
   }
 
   // Compound
   {
-    Expression tnegmult = parseExpression("1*-1");
-    fuzzyCmp(tnegmult(ctx), -1.0f);
-
-    Expression tnegparen = parseExpression("(-1)");
-    fuzzyCmp(tnegparen(ctx), -1.0f);
+    testExpr("1*-1", -1.0f, ctx);
+    testExpr("(-1)", -1.0f, ctx);
   }
 
   ctx.set("four", 4.0f);
@@ -588,22 +555,16 @@ unittest {
 
   // Variables
   {
-    Expression texpn = parseExpression("$four");
-    fuzzyCmp(texpn(ctx), 4.0f);
-
-    Expression tvarmath = parseExpression("$five+$four");
-    fuzzyCmp(tvarmath(ctx), 9.0f);
-
-    Expression tunderscore = parseExpression("$under_score");
-    fuzzyCmp(tunderscore(ctx), 1.0f);
+    testExpr("$four", 4.0f, ctx);
+    testExpr("$five+$four", 9.0f, ctx);
+    testExpr("$under_score", 1.0f, ctx);
   }
 
   ctx.set("four", 5.0f);
 
   // Variables
   {
-    Expression trebind = parseExpression("$four");
-    fuzzyCmp(trebind(ctx), 5.0f);
+    testExpr("$four", 5.0f, ctx);
   }
 
   // Exceptions
@@ -640,5 +601,9 @@ unittest {
       caught = true;
     }
     assert(caught);
+  }
+
+  if (!success) {
+    assert(0);
   }
 }
