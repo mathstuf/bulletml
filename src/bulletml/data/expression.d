@@ -204,10 +204,12 @@ public Expression parseExpression(string expr) {
       }
 
       // Enforce that the token is a constant or that it is a variable and the
-      // digit is not the first character.
+      // digit is not the first character (also disallow '.' in variable
+      // names).
       assert(token.type() == Token.TokenType.CONSTANT ||
              (token.type() == Token.TokenType.VARIABLE &&
-              !token.empty()));
+              !token.empty() &&
+              c != '.')); // FIXME: This is nasty to do here.
 
       // Append to the token.
       token.append(c);
