@@ -9,6 +9,7 @@ private import std.random;
 
 version(unittest) {
   private import core.exception;
+  private import std.math;
 }
 
 private alias float Value;
@@ -424,7 +425,7 @@ public class ExpressionError: object.Exception {
 unittest {
   Value epsilon = 1e-8;
   void fuzzyCmp(Value a, Value b) {
-    assert((a - b) < epsilon);
+    assert(fabs(a - b) < epsilon);
   }
 
   DefaultExpressionContext ctx = new DefaultExpressionContext;
