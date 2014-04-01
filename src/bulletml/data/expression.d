@@ -265,7 +265,7 @@ public Expression parseExpression(string expr) {
       // Perform constant folding.
       if (eop.isConstant()) {
         ExpressionContext ctx;
-        nodeStack ~= new ExpressionConstant(eop.eval(ctx));
+        nodeStack ~= new ExpressionConstant(eop(ctx));
       } else {
         nodeStack ~= eop;
       }
@@ -301,7 +301,7 @@ public Expression parseExpression(string expr) {
       // Perform constant folding.
       if (eop.isConstant()) {
         ExpressionContext ctx;
-        nodeStack ~= new ExpressionConstant(eop.eval(ctx));
+        nodeStack ~= new ExpressionConstant(eop(ctx));
       } else {
         nodeStack ~= eop;
       }
@@ -347,7 +347,7 @@ private Value modulo(Value lhs, Value rhs) {
 }
 
 public interface Expression {
-  public Value eval(ExpressionContext ctx);
+  public Value opCall(ExpressionContext ctx);
   public bool isConstant();
 }
 
@@ -359,7 +359,7 @@ public class ExpressionConstant: Expression {
       this.value = value;
     }
 
-    public Value eval(ExpressionContext) {
+    public Value opCall(ExpressionContext) {
       return value;
     }
 
@@ -376,7 +376,7 @@ public class ExpressionVariable: Expression {
       this.name = name;
     }
 
-    public Value eval(ExpressionContext ctx) {
+    public Value opCall(ExpressionContext ctx) {
       return ctx.get(name);
     }
 
@@ -397,8 +397,8 @@ public class ExpressionOperation: Expression {
       this.rhs = rhs;
     }
 
-    public Value eval(ExpressionContext ctx) {
-      return op(lhs.eval(ctx), rhs.eval(ctx));
+    public Value opCall(ExpressionContext ctx) {
+      return op(lhs(ctx), rhs(ctx));
     }
 
     public bool isConstant() {
@@ -493,79 +493,79 @@ unittest {
   // Values
   {
     Expression tint = parseExpression("1");
-    fuzzyCmp(tint.eval(ctx), 1f);
+    fuzzyCmp(tint(ctx), 1f);
 
     Expression tdecimal = parseExpression("1.5");
-    fuzzyCmp(tdecimal.eval(ctx), 1.5f);
+    fuzzyCmp(tdecimal(ctx), 1.5f);
 
     Expression tleadzero = parseExpression("0.5");
-    fuzzyCmp(tleadzero.eval(ctx), 0.5f);
+    fuzzyCmp(tleadzero(ctx), 0.5f);
 
     Expression tnoleadzero = parseExpression(".5");
-    fuzzyCmp(tnoleadzero.eval(ctx), 0.5f);
+    fuzzyCmp(tnoleadzero(ctx), 0.5f);
   }
 
   // Basic expressions
   {
     Expression tadd = parseExpression("1+2");
-    fuzzyCmp(tadd.eval(ctx), 3.0f);
+    fuzzyCmp(tadd(ctx), 3.0f);
 
     Expression tsub = parseExpression("10-1");
-    fuzzyCmp(tsub.eval(ctx), 9.0f);
+    fuzzyCmp(tsub(ctx), 9.0f);
 
     Expression tmult = parseExpression("2*3");
-    fuzzyCmp(tmult.eval(ctx), 6.0f);
+    fuzzyCmp(tmult(ctx), 6.0f);
 
     Expression tdiv = parseExpression("1/2");
-    fuzzyCmp(tdiv.eval(ctx), 0.5f);
+    fuzzyCmp(tdiv(ctx), 0.5f);
 
     Expression tmod = parseExpression("1%2");
-    fuzzyCmp(tmod.eval(ctx), 1.0f);
+    fuzzyCmp(tmod(ctx), 1.0f);
 
     Expression tneg = parseExpression("-1");
-    fuzzyCmp(tneg.eval(ctx), -1.0f);
+    fuzzyCmp(tneg(ctx), -1.0f);
   }
 
   // Whitespace
   {
     Expression tleadwhite = parseExpression(" 1+1");
-    fuzzyCmp(tleadwhite.eval(ctx), 2.0f);
+    fuzzyCmp(tleadwhite(ctx), 2.0f);
 
     Expression ttrailwhite = parseExpression("1+1 ");
-    fuzzyCmp(ttrailwhite.eval(ctx), 2.0f);
+    fuzzyCmp(ttrailwhite(ctx), 2.0f);
 
     Expression tpreop = parseExpression("1 +1");
-    fuzzyCmp(tpreop.eval(ctx), 2.0f);
+    fuzzyCmp(tpreop(ctx), 2.0f);
 
     Expression tpostop = parseExpression("1+ 1");
-    fuzzyCmp(tpostop.eval(ctx), 2.0f);
+    fuzzyCmp(tpostop(ctx), 2.0f);
   }
 
   // Order of operations
   {
     Expression taddmult = parseExpression("1+2*2");
-    fuzzyCmp(taddmult.eval(ctx), 5.0f);
+    fuzzyCmp(taddmult(ctx), 5.0f);
 
     Expression tmultadd = parseExpression("2*2+1");
-    fuzzyCmp(tmultadd.eval(ctx), 5.0f);
+    fuzzyCmp(tmultadd(ctx), 5.0f);
   }
 
   // Parentheses
   {
     Expression tparen = parseExpression("(1+1)");
-    fuzzyCmp(tparen.eval(ctx), 2.0f);
+    fuzzyCmp(tparen(ctx), 2.0f);
 
     Expression taddmult2 = parseExpression("2*(2+1)");
-    fuzzyCmp(taddmult2.eval(ctx), 6.0f);
+    fuzzyCmp(taddmult2(ctx), 6.0f);
   }
 
   // Compound
   {
     Expression tnegmult = parseExpression("1*-1");
-    fuzzyCmp(tnegmult.eval(ctx), -1.0f);
+    fuzzyCmp(tnegmult(ctx), -1.0f);
 
     Expression tnegparen = parseExpression("(-1)");
-    fuzzyCmp(tnegparen.eval(ctx), -1.0f);
+    fuzzyCmp(tnegparen(ctx), -1.0f);
   }
 
   ctx.set("four", 4.0f);
@@ -575,13 +575,13 @@ unittest {
   // Variables
   {
     Expression texpn = parseExpression("$four");
-    fuzzyCmp(texpn.eval(ctx), 4.0f);
+    fuzzyCmp(texpn(ctx), 4.0f);
 
     Expression tvarmath = parseExpression("$five+$four");
-    fuzzyCmp(tvarmath.eval(ctx), 9.0f);
+    fuzzyCmp(tvarmath(ctx), 9.0f);
 
     Expression tunderscore = parseExpression("$under_score");
-    fuzzyCmp(tunderscore.eval(ctx), 1.0f);
+    fuzzyCmp(tunderscore(ctx), 1.0f);
   }
 
   ctx.set("four", 5.0f);
@@ -589,7 +589,7 @@ unittest {
   // Variables
   {
     Expression trebind = parseExpression("$four");
-    fuzzyCmp(trebind.eval(ctx), 5.0f);
+    fuzzyCmp(trebind(ctx), 5.0f);
   }
 
   // Exceptions
@@ -597,7 +597,7 @@ unittest {
     bool caught = false;
     try {
       Expression e = parseExpression("$novar");
-      e.eval(ctx);
+      e(ctx);
     } catch (RangeError) {
       caught = true;
     }
