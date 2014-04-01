@@ -557,6 +557,21 @@ unittest {
 
     Expression taddmult2 = parseExpression("2*(2+1)");
     fuzzyCmp(taddmult2(ctx), 6.0f);
+
+    Expression tmultadd2 = parseExpression("(2+1)*2");
+    fuzzyCmp(tmultadd2(ctx), 6.0f);
+
+    Expression tpair = parseExpression("(2+1)*(2+3)");
+    fuzzyCmp(tpair(ctx), 15.0f);
+
+    Expression tpair2 = parseExpression("(2*1)+(2*3)");
+    fuzzyCmp(tpair2(ctx), 8.0f);
+
+    Expression tnested = parseExpression("(4*(1+2))*2");
+    fuzzyCmp(tnested(ctx), 24.0f);
+
+    Expression tnested2 = parseExpression("(4+(1+2))+2");
+    fuzzyCmp(tnested2(ctx), 9.0f);
   }
 
   // Compound
