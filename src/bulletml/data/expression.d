@@ -1,7 +1,6 @@
 module bulletml.elements._expression;
 
 private import core.stdc.ctype;
-private import core.stdc.stdlib;
 private import std.container;
 private import std.exception;
 private import std.conv;
@@ -254,7 +253,7 @@ public Expression parseExpression(string expr) {
       nodeStack ~= new ExpressionVariable(top.toString());
       break;
     case Token.TokenType.CONSTANT:
-      nodeStack ~= new ExpressionConstant(atof(top.toString().ptr));
+      nodeStack ~= new ExpressionConstant(to!float(top.toString()));
       break;
     case Token.TokenType.NEGATE:
       Expression rhs = checkPop(nodeStack);
