@@ -26,8 +26,8 @@ public class Action {
         Vanish,
         Action*, // TODO: Fix this.
         ORef!Action
-        ) Element;
-    Element contents[];
+        ) AElement;
+    AElement contents[];
   private:
     public this() {
     }
