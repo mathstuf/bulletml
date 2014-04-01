@@ -113,6 +113,26 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
   };
 }
 
+private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
+                             ref bool parsed, ref Fuse fuse) {
+  p.onStartTag[tag] = (ElementParser xml) {
+    if (parsed) {
+      throw new DuplicateTag(xml, p);
+    }
+
+    T dat = new T;
+    P elem = new P(dat);
+
+    elem.setup(xml);
+
+    if (fuse !is null) {
+      fuse.defuse();
+    }
+    store = dat;
+    parsed = true;
+  };
+}
+
 private void _parse(P, D)(ElementParser p, string tag, ref D store[]) {
   p.onStartTag[tag] = (ElementParser xml) {
     D dat = new D;
@@ -165,8 +185,8 @@ public void parseOneOf(P, D)(ElementParser p, string tags[], ref D store) {
 
   assert(D.AllowedTypes.length == tags.length);
 
-  for (int i = 0; i < tags.length; ++i) {
-    _parse!(P, store.AllowedTypes[i])(p, tags[i], store, parsed, fuse);
+  foreach (i, T; D.AllowedTypes) {
+    _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store, parsed, fuse);
   }
 }
 
