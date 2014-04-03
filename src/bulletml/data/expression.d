@@ -19,7 +19,6 @@ public interface ExpressionContext {
     public void set(string name, Value value);
     public void remove(string name);
     public Value get(string name);
-    public Expression param(size_t idx);
     public ExpressionContext clone();
     public Value rand();
     public Value rank();
@@ -354,7 +353,9 @@ public class ExpressionParameter: Expression {
     }
 
     public Value opCall(ExpressionContext ctx) {
-      return ctx.param(idx)(ctx);
+      // Parameters are meant to have been resolved by now.
+      assert(0);
+      return 0;
     }
 
     public bool isConstant() {
