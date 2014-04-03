@@ -2,6 +2,7 @@ add_subdirectory(data)
 add_subdirectory(elements)
 
 set(bulletml_srcs
+    flatten.d
     parser.d
     runner.d)
 
