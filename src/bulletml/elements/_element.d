@@ -155,7 +155,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store[]) {
   };
 }
 
-private void _parse(P, D, U : T*, T)(ElementParser p, string tag, ref D store[]) {
+private void _parse(P, D, U: T*, T)(ElementParser p, string tag, ref D store[]) {
   p.onStartTag[tag] = (ElementParser xml) {
     T dat = new T;
     P elem = new P(dat);
