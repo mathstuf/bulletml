@@ -233,8 +233,7 @@ public Expression parseExpression(string expr) {
 
       // Perform constant folding.
       if (eop.isConstant()) {
-        ExpressionContext ctx;
-        nodeStack ~= new ExpressionConstant(eop(ctx));
+        nodeStack ~= new ExpressionConstant(eop());
       } else {
         nodeStack ~= eop;
       }
@@ -269,8 +268,7 @@ public Expression parseExpression(string expr) {
 
       // Perform constant folding.
       if (eop.isConstant()) {
-        ExpressionContext ctx;
-        nodeStack ~= new ExpressionConstant(eop(ctx));
+        nodeStack ~= new ExpressionConstant(eop());
       } else {
         nodeStack ~= eop;
       }
@@ -316,6 +314,7 @@ private Value modulo(Value lhs, Value rhs) {
 }
 
 public interface Expression {
+  public Value opCall();
   public Value opCall(ExpressionContext ctx);
   public bool isConstant();
 }
@@ -328,7 +327,11 @@ public class ExpressionConstant: Expression {
       this.value = value;
     }
 
-    public Value opCall(ExpressionContext) {
+    public Value opCall() {
+      return value;
+    }
+
+    public Value opCall(ExpressionContext ctx) {
       return value;
     }
 
@@ -343,6 +346,11 @@ public class ExpressionParameter: Expression {
   private:
     public this(size_t idx) {
       this.idx = idx;
+    }
+
+    public Value opCall() {
+      assert(0);
+      return 0;
     }
 
     public Value opCall(ExpressionContext ctx) {
@@ -360,6 +368,11 @@ public class ExpressionVariable: Expression {
   private:
     public this(string name) {
       this.name = name;
+    }
+
+    public Value opCall() {
+      assert(0);
+      return 0;
     }
 
     public Value opCall(ExpressionContext ctx) {
@@ -381,6 +394,10 @@ public class ExpressionOperation: Expression {
       this.op = op;
       this.lhs = lhs;
       this.rhs = rhs;
+    }
+
+    public Value opCall() {
+      return op(lhs(), rhs());
     }
 
     public Value opCall(ExpressionContext ctx) {
