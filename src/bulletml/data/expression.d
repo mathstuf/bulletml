@@ -12,7 +12,7 @@ version(unittest) {
   private import std.stdio;
 }
 
-private alias float Value;
+public alias float Value;
 
 public interface ExpressionContext {
   private:
