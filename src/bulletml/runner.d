@@ -164,6 +164,7 @@ public class ActionRunner: BulletMLRunner {
     BulletManager manager;
     BulletML.Orientation orientation;
     ActionZipper zipper;
+
     Array!uint repeatStack;
     Nullable!uint next;
     Nullable!float prevSpeed;
@@ -595,6 +596,8 @@ public class ActionRunner: BulletMLRunner {
 
     private Status runRepeat(Repeat repeat, uint turn) {
       float times = repeat.times.value(manager);
+      // Other implementations use C++'s static_cast which truncates, so
+      // compare with 1 (rather then letting rounding occur).
       if (times < 1) {
         return Status.CONTINUE;
       }
@@ -606,7 +609,9 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runVanish(Vanish vanish, uint turn) {
+      // Poof.
       manager.vanish();
+      // Nothing further to do.
       return Status.END;
     }
 
@@ -616,8 +621,10 @@ public class ActionRunner: BulletMLRunner {
         next = turn + to!int(frames);
       }
       if (next.get() < turn) {
+        // Stop any further processing.
         return Status.END;
       } else {
+        // Clear the wait flag and execute the next action.
         next.nullify();
         return Status.CONTINUE;
       }
