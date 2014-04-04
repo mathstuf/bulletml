@@ -166,11 +166,12 @@ public class ActionRunner: BulletMLRunner {
     Nullable!uint next;
     bool end;
 
-    alias Nullable!(Function!(uint, double)) UpdateFunction;
-    UpdateFunction changeDirF;
-    UpdateFunction changeSpeedF;
-    UpdateFunction accelXF;
-    UpdateFunction accelYF;
+    alias LinearFunction!(uint, double) UpdateFunction;
+    alias Nullable!UpdateFunction NUpdateFunction;
+    NUpdateFunction changeDirF;
+    NUpdateFunction changeSpeedF;
+    NUpdateFunction accelXF;
+    NUpdateFunction accelYF;
 
     package this(BulletManager manager, BulletML.Orientation orientation, Action act) {
       this.manager = manager;
@@ -249,7 +250,7 @@ public class ActionRunner: BulletMLRunner {
       return updated;
     }
 
-    private double updateTurn(ref UpdateFunction func, uint turn) {
+    private double updateTurn(ref NUpdateFunction func, uint turn) {
       double value;
 
       if (func.inDomain(turn)) {
