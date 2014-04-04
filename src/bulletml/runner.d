@@ -612,9 +612,10 @@ public class ActionRunner: BulletMLRunner {
 
     private Status runWait(Wait wait, uint turn) {
       if (next.isNull()) {
-        next = turn + cast(uint) wait.frames(manager);
+        float frames = wait.frames(manager);
+        next = turn + to!int(frames);
       }
-      if (next < turn) {
+      if (next.get() < turn) {
         return Status.END;
       } else {
         next.nullify();
