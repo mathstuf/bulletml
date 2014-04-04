@@ -3,8 +3,10 @@ module bulletml.runner;
 private import bulletml.data.bulletml;
 private import bulletml.flatten;
 
+private import std.algorithm;
 private import std.container;
 private import std.conv;
+private import std.math;
 private import std.variant;
 
 public interface BulletManager: ExpressionContext {
@@ -164,6 +166,7 @@ public class ActionRunner: BulletMLRunner {
     ActionZipper zipper;
     Array!uint repeatStack;
     Nullable!uint next;
+    Nullable!float prevDirection;
     bool end;
 
     alias LinearFunction!(uint, double) UpdateFunction;
@@ -393,14 +396,82 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runChangeDirection(ChangeDirection changeDirection, uint turn) {
-      float duration = changeDirection.term.value(manager);
-      if (duration < 1) {
-        return Status.CONTINUE;
+      float durationf = changeDirection.term.value(manager);
+      int duration = max(0, to!int(durationf));
+
+      Direction direction = changeDirection.direction;
+
+      float dir;
+      float curDir = manager.getBulletDirection();
+      if (direction.type == Direction.DirectionType.SEQUENCE) {
+        // Calculate the final direction.
+        float degrees = direction.degrees(manager);
+        dir = duration * degrees + curDir;
+      } else {
+        // Get the final direction.
+        float targetDir = getDirection(direction);
+
+        // Go around the circle in the shorter direction.
+        float dirDiff = targetDir - curDir;
+        if (180 < fabs(dirDiff)) {
+          if (dirDiff < 0) {
+            dirDiff += 360;
+          } else {
+            dirDiff -= 360;
+          }
+        }
+        dir = curDir + dirDiff;
       }
 
-      // TODO: Implement.
+      changeDirF = new UpdateFunction(turn, turn + duration,
+                                      curDir, dir);
 
       return Status.CONTINUE;
+    }
+
+    private float getDirection(Direction direction) {
+      float dir = 0;
+
+      float degrees = direction.degrees(manager);
+
+      switch (direction.type) {
+      case Direction.DirectionType.AIM:
+        // Be relative to the target direction.
+        dir = degrees + manager.getAimDirection();
+        break;
+      case Direction.DirectionType.ABSOLUTE:
+        if (orientation == BulletML.Orientation.HORIZONTAL) {
+          // Point to the right instead of up.
+          degrees -= 90;
+        }
+        dir = degrees;
+        break;
+      case Direction.DirectionType.RELATIVE:
+        // Change the current direction.
+        dir = degrees + manager.getBulletDirection();
+        break;
+      case Direction.DirectionType.SEQUENCE:
+        if (prevDirection.isNull()) {
+          // Default to aiming at the player.
+          dir = manager.getAimDirection();
+        } else {
+          // Change relative to the last (relevant) direction.
+          dir = degrees + prevDirection.get();
+        }
+        break;
+      default:
+        assert(0);
+      }
+
+      // Make the direction in the range [0, 360).
+      while (dir > 360) {
+        dir -= 360;
+      }
+      while (dir < 0) {
+        dir += 360;
+      }
+
+      return dir;
     }
 
     private Status runChangeSpeed(ChangeSpeed changeSpeed, uint turn) {
