@@ -22,6 +22,11 @@ set(data_srcs
 
 add_library(bulletml_data STATIC
     ${data_srcs})
+set_target_properties(bulletml_data
+    PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 install(
     FILES       ${bulletml_srcs}
     DESTINATION "include/d/bulletml/data"

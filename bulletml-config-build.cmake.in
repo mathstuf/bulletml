@@ -1,0 +1,6 @@
+include("${CMAKE_CURRENT_LIST_DIR}/bulletml-config-targets.cmake")
+
+set(BULLETML_INCLUDE_DIR
+    "@CMAKE_SOURCE_DIR@/src")
+set(BULLETML_LIBRARY_DIR
+    "@CMAKE_BINARY_DIR@/lib")

@@ -15,6 +15,11 @@ target_link_libraries(bulletml
         bulletml_data
     LINK_PRIVATE
         bulletml_elements)
+set_target_properties(bulletml
+    PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 install(
     FILES       ${bulletml_srcs}
     DESTINATION "include/d/bulletml"
@@ -24,3 +29,10 @@ install(
     EXPORT      bulletml
     DESTINATION lib
     COMPONENT   runtime)
+
+# Export to the build tree.
+export(
+    TARGETS   bulletml_data
+              bulletml
+    NAMESPACE BulletML::
+    FILE      "${CMAKE_BINARY_DIR}/bulletml-config-targets.cmake")

@@ -1,0 +1,14 @@
+set(BULLETML_VERSION
+    "@bulletml_version@")
+
+if (BULLETML_VERSION VERSION_LESS bulletml_FIND_VERSION)
+    set(bulletml_FOUND FALSE)
+    return()
+endif ()
+if (bulletml_FIND_VERSION_EXACT AND
+    NOT BULLETML_VERSION STREQUAL bulletml_FIND_VERSION)
+    set(bulletml_FOUND FALSE)
+    return()
+endif ()
+
+include("${CMAKE_CURRENT_LIST_DIR}/bulletml-config-variables.cmake")
