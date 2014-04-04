@@ -82,11 +82,12 @@ private class GroupRunner: BulletMLRunner {
     BulletMLRunner runners[];
 
     package this(BulletManager manager, Resolved!BulletML bml) {
+      BulletML.Orientation orientation = bml.get().orientation;
       foreach (elem; bml.get().elements) {
         Action* action = elem.peek!Action();
         assert(action !is null);
 
-        runners ~= new ActionRunner(manager, *action);
+        runners ~= new ActionRunner(manager, orientation, *action);
       }
     }
 
@@ -159,6 +160,7 @@ public class ActionRunner: BulletMLRunner {
     }
 
     BulletManager manager;
+    BulletML.Orientation orientation;
     ActionZipper zipper;
     Array!uint repeatStack;
     Nullable!uint next;
@@ -170,8 +172,9 @@ public class ActionRunner: BulletMLRunner {
     UpdateFunction accelXF;
     UpdateFunction accelYF;
 
-    package this(BulletManager manager, Action act) {
+    package this(BulletManager manager, BulletML.Orientation orientation, Action act) {
       this.manager = manager;
+      this.orientation = orientation;
       zipper = new ActionZipper(act.contents);
       end = false;
     }
