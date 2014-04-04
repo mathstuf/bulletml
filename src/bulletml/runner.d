@@ -166,6 +166,7 @@ public class ActionRunner: BulletMLRunner {
     ActionZipper zipper;
     Array!uint repeatStack;
     Nullable!uint next;
+    Nullable!float prevSpeed;
     Nullable!float prevDirection;
     bool end;
 
@@ -475,11 +476,58 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runChangeSpeed(ChangeSpeed changeSpeed, uint turn) {
-      float duration = changeSpeed.term.value(manager);
+      float durationf = changeSpeed.term.value(manager);
+      int duration = max(0, to!int(durationf));
 
-      // TODO: Implement.
+      Speed speed = changeSpeed.speed;
+
+      float spd;
+      float curSpd = manager.getBulletSpeed();
+      if (speed.type == ChangeType.SEQUENCE) {
+        // Calculate the final speed.
+        float change = speed.change(manager);
+        spd = duration * change + curSpd;
+      } else {
+        // Get the final speed.
+        spd = getSpeed(speed);
+
+        // Update the last speed.
+        // XXX: Why is this done? The direction isn't updated and the sequence
+        // mode doesn't update this either. This seems hacky, but it's what
+        // other implementations do :( .
+        prevSpeed = spd;
+      }
+
+      changeDirF = new UpdateFunction(turn, turn + duration,
+                                      curSpd, spd);
 
       return Status.CONTINUE;
+    }
+
+    private float getSpeed(Speed speed) {
+      float change = speed.change(manager);
+
+      switch (speed.type) {
+      case ChangeType.ABSOLUTE:
+        // Just use the given speed.
+        return change;
+      case ChangeType.RELATIVE:
+        // Change the current speed.
+        return change + manager.getBulletSpeed();
+      case ChangeType.SEQUENCE:
+        if (prevSpeed.isNull()) {
+          // Use a default speed of 1.
+          return 1;
+        } else {
+          // Change relative to the last (relevant) speed.
+          return change + prevSpeed.get();
+        }
+      default:
+        assert(0);
+      }
+
+      assert(0);
+      return 0;
     }
 
     private Status runFire(Fire fire, uint turn) {
