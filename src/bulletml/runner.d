@@ -326,9 +326,65 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runAccel(Accel accel, uint turn) {
-      // TODO: Implement.
+      float durationf = accel.term.value(manager);
+      int duration = max(0, to!int(durationf));
+
+      Nullable!float xSpd;
+      Nullable!float ySpd;
+      if (orientation == BulletML.Orientation.HORIZONTAL) {
+        setupAccelX(accel.vertical, turn, duration);
+        setupAccelY(accel.horizontal, turn, duration);
+      } else {
+        setupAccelX(accel.horizontal, turn, duration);
+        setupAccelY(accel.vertical, turn, duration);
+      }
 
       return Status.CONTINUE;
+    }
+
+    private float getAccel(T)(T elem, float curSpeed, int duration) {
+      float change = elem.change(manager);
+      switch (elem.type) {
+      case ChangeType.ABSOLUTE:
+        // Just use the given speed.
+        return change;
+      case ChangeType.RELATIVE:
+        // Change the current speed by the given amount over the entire
+        // duration.
+        return change + curSpeed;
+      case ChangeType.SEQUENCE:
+        // Change the current speed by the amount each frame.
+        return change * duration + curSpeed;
+      default:
+        assert(0);
+      }
+
+      assert(0);
+      return 0;
+    }
+
+    private void setupAccelX(T)(Nullable!T mElem, uint turn, int duration) {
+      if (mElem.isNull()) {
+        return;
+      }
+
+      float curSpeed = manager.getSpeedX();
+      float finalSpeed = getAccel!T(mElem.get(), curSpeed, duration);
+
+      accelXF = new UpdateFunction(turn, turn + duration,
+                                   curSpeed, finalSpeed);
+    }
+
+    private void setupAccelY(T)(Nullable!T mElem, uint turn, int duration) {
+      if (mElem.isNull()) {
+        return;
+      }
+
+      float curSpeed = manager.getSpeedY();
+      float finalSpeed = getAccel!T(mElem.get(), curSpeed, duration);
+
+      accelYF = new UpdateFunction(turn, turn + duration,
+                                   curSpeed, finalSpeed);
     }
 
     private Status runAction(Action action, uint turn) {
