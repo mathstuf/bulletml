@@ -1,6 +1,4 @@
 set(data_srcs
-    _all.d
-
     accel.d
     action.d
     bullet.d
@@ -24,10 +22,20 @@ set(data_srcs
 
 add_library(bulletml_data STATIC
     ${data_srcs})
+install(
+    FILES       ${bulletml_srcs}
+    DESTINATION "include/d/bulletml/data"
+    COMPONENT   development)
+install(
+    TARGETS     bulletml_data
+    EXPORT      bulletml
+    DESTINATION lib
+    COMPONENT   runtime)
 
 if (BULLETML_ENABLE_TESTING)
     add_executable(test_bulletml_data
-      ${data_srcs}
+        ${data_srcs}
+        _all.d
         _test.d)
     add_test(
         NAME    bulletml_data
