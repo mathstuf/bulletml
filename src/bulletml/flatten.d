@@ -32,6 +32,17 @@ public Resolved!BulletML resolve(T: BulletML)(BulletML bml) {
   return new Resolved!BulletML(resolved);
 }
 
+public Resolved!BulletML bulletWithActions(BulletML.Orientation orientation, Action actions[]) {
+  BulletML resolved = new BulletML;
+
+  resolved.orientation = orientation;
+  foreach (Action action; actions) {
+    resolved.elements ~= BulletML.Element(action);
+  }
+
+  return new Resolved!BulletML(resolved);
+}
+
 private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression params[]) {
   Accel resolved = new Accel;
 

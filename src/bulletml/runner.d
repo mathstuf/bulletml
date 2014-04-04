@@ -531,21 +531,66 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runFire(Fire fire, uint turn) {
-      float direction = 0;
-      float speed = 0;
+      // Get the fire-level direction and speed.
+      Nullable!float fDirection = getDirection(fire.direction, Nullable!float());
+      Nullable!float fSpeed = getSpeed(fire.speed, Nullable!float());
 
-      // TODO: Implement.
+      // Clear the previous values and set them to whatever the fire element
+      // used.
+      prevDirection = fDirection;
+      prevSpeed = fSpeed;
 
       Bullet* bullet = fire.bullet.peek!Bullet();
       assert(bullet !is null);
+
+      // Update with any bullet-specific direction and speeds.
+      Nullable!float bDirection = getDirection(bullet.direction, fDirection);
+      Nullable!float bSpeed = getSpeed(bullet.speed, fSpeed);
+
+      // Set defaults for sanity.
+      if (bDirection.isNull()) {
+        bDirection = manager.getAimDirection();
+      }
+      if (bSpeed.isNull()) {
+        bSpeed = manager.getDefaultSpeed();
+      }
+
+      // Update the previous values.
+      prevDirection = bDirection;
+      prevSpeed = bSpeed;
+
       if (bullet.actions.length) {
-        Resolved!BulletML bml;
-        manager.createBullet(bml, direction, speed);
+        Action actions[];
+        foreach (act; bullet.actions) {
+          Action* action = act.peek!Action();
+          assert(action !is null);
+          actions ~= *action;
+        }
+
+        Resolved!BulletML bml = bulletWithActions(orientation, actions);
+        manager.createBullet(bml, bDirection.get(), bSpeed.get());
       } else {
-        manager.createSimpleBullet(direction, speed);
+        // A boring bullet.
+        manager.createSimpleBullet(bDirection.get(), bSpeed.get());
       }
 
       return Status.CONTINUE;
+    }
+
+    private Nullable!float getDirection(Nullable!Direction mDirection, Nullable!float mDefault) {
+      if (mDirection.isNull()) {
+        return mDefault;
+      } else {
+        return Nullable!float(getDirection(mDirection.get()));
+      }
+    }
+
+    private Nullable!float getSpeed(Nullable!Speed mSpeed, Nullable!float mDefault) {
+      if (mSpeed.isNull()) {
+        return mDefault;
+      } else {
+        return Nullable!float(getSpeed(mSpeed.get()));
+      }
     }
 
     private Status runRepeat(Repeat repeat, uint turn) {
