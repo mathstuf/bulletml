@@ -7,7 +7,7 @@ private import std.container;
 private import std.conv;
 private import std.variant;
 
-public interface BulletManager {
+public interface BulletManager: ExpressionContext {
   private:
     public void createSimpleBullet(double direction, double speed);
     public void createBullet(const Resolved!BulletML state, double direction, double speed);
@@ -63,12 +63,12 @@ private class LinearFunction(X, Y): Function!(X, Y) {
     }
 }
 
-public BulletMLRunner createRunner(BulletManager manager, BulletML bml, ExpressionContext ctx) {
-  return createRunner(manager, resolve!BulletML(bml), ctx);
+public BulletMLRunner createRunner(BulletManager manager, BulletML bml) {
+  return createRunner(manager, resolve!BulletML(bml));
 }
 
-public BulletMLRunner createRunner(BulletManager manager, Resolved!BulletML bml, ExpressionContext ctx) {
-  return new GroupRunner(manager, bml, ctx);
+public BulletMLRunner createRunner(BulletManager manager, Resolved!BulletML bml) {
+  return new GroupRunner(manager, bml);
 }
 
 public interface BulletMLRunner {
@@ -81,12 +81,12 @@ private class GroupRunner: BulletMLRunner {
   private:
     BulletMLRunner runners[];
 
-    package this(BulletManager manager, Resolved!BulletML bml, ExpressionContext ctx) {
+    package this(BulletManager manager, Resolved!BulletML bml) {
       foreach (elem; bml.get().elements) {
         Action* action = elem.peek!Action();
         assert(action !is null);
 
-        runners ~= new ActionRunner(manager, *action, ctx);
+        runners ~= new ActionRunner(manager, *action);
       }
     }
 
@@ -159,7 +159,6 @@ public class ActionRunner: BulletMLRunner {
     }
 
     BulletManager manager;
-    ExpressionContext ctx;
     ActionZipper zipper;
     Array!uint repeatStack;
     Nullable!uint next;
@@ -171,9 +170,8 @@ public class ActionRunner: BulletMLRunner {
     UpdateFunction accelXF;
     UpdateFunction accelYF;
 
-    package this(BulletManager manager, Action act, ExpressionContext ctx) {
+    package this(BulletManager manager, Action act) {
       this.manager = manager;
-      this.ctx = ctx;
       zipper = new ActionZipper(act.contents);
       end = false;
     }
@@ -335,7 +333,7 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runChangeDirection(ChangeDirection changeDirection, uint turn) {
-      float duration = changeDirection.term.value(ctx);
+      float duration = changeDirection.term.value(manager);
       if (duration < 1) {
         return Status.CONTINUE;
       }
@@ -346,7 +344,7 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runChangeSpeed(ChangeSpeed changeSpeed, uint turn) {
-      float duration = changeSpeed.term.value(ctx);
+      float duration = changeSpeed.term.value(manager);
 
       // TODO: Implement.
 
@@ -372,7 +370,7 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runRepeat(Repeat repeat, uint turn) {
-      float times = repeat.times.value(ctx);
+      float times = repeat.times.value(manager);
       if (times < 1) {
         return Status.CONTINUE;
       }
@@ -390,7 +388,7 @@ public class ActionRunner: BulletMLRunner {
 
     private Status runWait(Wait wait, uint turn) {
       if (next.isNull()) {
-        next = turn + cast(uint) wait.frames(ctx);
+        next = turn + cast(uint) wait.frames(manager);
       }
       if (next < turn) {
         return Status.END;
