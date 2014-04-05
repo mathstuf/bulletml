@@ -15,11 +15,10 @@ public interface BulletManager: ExpressionContext {
     public void createBullet(const ResolvedBulletML state, double direction, double speed);
     public uint getTurn();
 
-    public double getBulletDirection();
+    public double getDirection();
     public double getAimDirection();
-    public double getBulletSpeed();
+    public double getSpeed();
     public double getDefaultSpeed();
-    public double getRank();
     public void vanish();
     public void changeDirection(double degree);
     public void changeSpeed(double ds);
@@ -404,7 +403,7 @@ public class ActionRunner: BulletMLRunner {
       Direction direction = changeDirection.direction;
 
       float dir;
-      float curDir = manager.getBulletDirection();
+      float curDir = manager.getDirection();
       if (direction.type == Direction.DirectionType.SEQUENCE) {
         // Calculate the final direction.
         float degrees = direction.degrees(manager);
@@ -450,7 +449,7 @@ public class ActionRunner: BulletMLRunner {
         break;
       case Direction.DirectionType.RELATIVE:
         // Change the current direction.
-        dir = degrees + manager.getBulletDirection();
+        dir = degrees + manager.getDirection();
         break;
       case Direction.DirectionType.SEQUENCE:
         if (prevDirection.isNull()) {
@@ -483,7 +482,7 @@ public class ActionRunner: BulletMLRunner {
       Speed speed = changeSpeed.speed;
 
       float spd;
-      float curSpd = manager.getBulletSpeed();
+      float curSpd = manager.getSpeed();
       if (speed.type == ChangeType.SEQUENCE) {
         // Calculate the final speed.
         float change = speed.change(manager);
@@ -514,7 +513,7 @@ public class ActionRunner: BulletMLRunner {
         return change;
       case ChangeType.RELATIVE:
         // Change the current speed.
-        return change + manager.getBulletSpeed();
+        return change + manager.getSpeed();
       case ChangeType.SEQUENCE:
         if (prevSpeed.isNull()) {
           // Use a default speed of 1.
