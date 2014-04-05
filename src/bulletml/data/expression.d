@@ -19,7 +19,6 @@ public interface ExpressionContext {
     public void set(string name, Value value);
     public void remove(string name);
     public Value get(string name);
-    public ExpressionContext clone();
     public Value rand();
     public Value rank();
 }
@@ -491,15 +490,7 @@ unittest {
   class SimpleExpressionContext: ExpressionContext {
     private:
       Value[string] variables;
-      Expression params[];
     public:
-      public this() {
-      }
-
-      public this(Expression params[]) {
-        this.params = params;
-      }
-
       public void set(string name, Value value) {
         variables[name] = value;
       }
@@ -516,17 +507,6 @@ unittest {
         }
 
         return variables[name];
-      }
-
-      public Expression param(size_t idx) {
-        return params[idx];
-      }
-
-      public ExpressionContext clone() {
-        SimpleExpressionContext ctx = new SimpleExpressionContext;
-        ctx.variables = variables;
-        ctx.params = params;
-        return ctx;
       }
 
       public Value rand() {
