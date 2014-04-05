@@ -267,52 +267,7 @@ private T findElement(T)(BulletML bml, string label) {
   return null;
 }
 
-private T _findElement(T)(Action action, string label) {
-  T self = findElementSelf(action, label);
-  if (self !is null) {
-    return self;
-  }
-
-  return _findElement!T(action.bullet, label);
-}
-
-private T _findElement(T)(Bullet bullet, string label) {
-  T self = findElementSelf(bullet, label);
-  if (self !is null) {
-    return self;
-  }
-
-  return _findElement!T(bullet.actions, label);
-}
-
-private T _findElement(T)(Fire fire, string label) {
-  T self = findElementSelf(fire, label);
-  if (self !is null) {
-    return self;
-  }
-
-  return _findElement!T(fire.bullet, label);
-}
-
-private T _findElement(T)(T* item, string label) {
-  return _findElement!T(*item, label);
-}
-
-private T findElementSelf(T)(T item, string label) {
-  if (label == item.label) {
-    return item;
-  }
-}
-
-private T _findElement(T, U)(U item, string label) {
-  return null;
-}
-
-private T _findElement(T)(ORef!T elem, string label) {
-  return null;
-}
-
-private T _findElement(T)(T elems[], string label) {
+private T _findElement(T, U)(U elems[], string label) {
   foreach (elem; elems) {
     T item = _findElement!T(elem, label);
     if (item !is null) {
@@ -323,11 +278,65 @@ private T _findElement(T)(T elems[], string label) {
   return null;
 }
 
-private T _findElement(T: VariantN!A, D, A)(D elem, string label) {
-  foreach (T; D.AllowedTypes) {
-    T* item = unresolved.peek!T();
+private T _findElement(T, D: VariantN!A, A...)(D elem, string label) {
+  foreach (U; D.AllowedTypes) {
+    U* item = elem.peek!U();
     if (item !is null) {
-      return _findElement!T(*item, label);
+      return _findElement!(T, U)(*item, label);
+    }
+  }
+
+  return null;
+}
+
+private T _findElement(T, U)(U item, string label) if (isPointer!U) {
+  return _findElement!(T, PointerTarget!U)(*item, label);
+}
+
+private T _findElement(T, U)(U item, string label)
+  if (!is(T == U) &&
+      !isInstanceOf!(VariantN, U) &&
+      !isInstanceOf!(ORef, U) &&
+      !isArray!(U) &&
+      !isPointer!U) {
+  return null;
+}
+
+private T _findElement(T, U)(U elem, string label) if (isInstanceOf!(ORef, U)) {
+  return null;
+}
+
+private T _findElement(T, U: Action)(U action, string label) {
+  T self = findElementSelf!T(action, label);
+  if (self !is null) {
+    return self;
+  }
+
+  return _findElement!T(action.contents, label);
+}
+
+private T _findElement(T, U: Bullet)(U bullet, string label) {
+  T self = findElementSelf!T(bullet, label);
+  if (self !is null) {
+    return self;
+  }
+
+  return _findElement!T(bullet.actions, label);
+}
+
+private T _findElement(T, U: Fire)(Fire fire, string label) {
+  T self = findElementSelf!T(fire, label);
+  if (self !is null) {
+    return self;
+  }
+
+  return _findElement!T(fire.bullet, label);
+}
+
+private T findElementSelf(T, U)(U item, string label) {
+  static if (is(T == U)) {
+    if (label == item.label) {
+      return item;
     }
   }
 
