@@ -85,10 +85,9 @@ private class GroupRunner: BulletMLRunner {
     package this(BulletManager manager, const ResolvedBulletML bml) {
       BulletML.Orientation orientation = bml.get().orientation;
       foreach (elem; bml.get().elements) {
-        Action* action = elem.peek!Action();
-        assert(action !is null);
-
-        runners ~= new ActionRunner(manager, orientation, *action);
+        elem.tryVisit!((Action action) {
+            runners ~= new ActionRunner(manager, orientation, action);
+          })();
       }
     }
 
@@ -281,52 +280,28 @@ public class ActionRunner: BulletMLRunner {
     }
 
     private Status runAction(Action.AElement action, uint turn) {
-      Repeat** repeat = action.peek!(Repeat*)();
-      if (repeat !is null) {
-        return runRepeat(**repeat, turn);
-      }
-
-      Fire** fire = action.peek!(Fire*)();
-      if (fire !is null) {
-        return runFire(**fire, turn);
-      }
-
-      ChangeSpeed* changeSpeed = action.peek!ChangeSpeed();
-      if (changeSpeed !is null) {
-        return runChangeSpeed(*changeSpeed, turn);
-      }
-
-      ChangeDirection* changeDirection = action.peek!ChangeDirection();
-      if (changeDirection !is null) {
-        return runChangeDirection(*changeDirection, turn);
-      }
-
-      Accel* accel = action.peek!Accel();
-      if (accel !is null) {
-        return runAccel(*accel, turn);
-      }
-
-      Wait* wait = action.peek!Wait();
-      if (wait !is null) {
-        return runWait(*wait, turn);
-      }
-
-      Vanish* vanish = action.peek!Vanish();
-      if (vanish !is null) {
-        return runVanish(*vanish, turn);
-      }
-
-      Action** act = action.peek!(Action*)();
-      if (act !is null) {
-        return runAction(**act, turn);
-      }
-
-      // References should have already been resolved at this point.
-
-      // This should never happen...
-      assert(0);
-      // ...but if it does, skip the element.
-      return Status.CONTINUE;
+      return action.tryVisit!(
+        (Repeat* repeat) =>
+          runRepeat(*repeat, turn),
+        (Fire* fire) =>
+          runFire(*fire, turn),
+        (ChangeSpeed changeSpeed) =>
+          runChangeSpeed(changeSpeed, turn),
+        (ChangeDirection changeDirection) =>
+          runChangeDirection(changeDirection, turn),
+        (Accel accel) =>
+          runAccel(accel, turn),
+        (Wait wait) =>
+          runWait(wait, turn),
+        (Vanish vanish) =>
+          runVanish(vanish, turn),
+        (Action* action) =>
+          runAction(*action, turn),
+        // This should never happen...
+        () =>
+          // ...but if it does, skip the element.
+          Status.CONTINUE
+        )();
     }
 
     private Status runAccel(Accel accel, uint turn) {
@@ -540,8 +515,7 @@ public class ActionRunner: BulletMLRunner {
       prevDirection = fDirection;
       prevSpeed = fSpeed;
 
-      Bullet* bullet = fire.bullet.peek!Bullet();
-      assert(bullet !is null);
+      Bullet bullet = fire.bullet.get!Bullet();
 
       // Update with any bullet-specific direction and speeds.
       Nullable!float bDirection = getDirection(bullet.direction, fDirection);
@@ -562,9 +536,7 @@ public class ActionRunner: BulletMLRunner {
       if (bullet.actions.length) {
         Action actions[];
         foreach (act; bullet.actions) {
-          Action* action = act.peek!Action();
-          assert(action !is null);
-          actions ~= *action;
+          actions ~= act.get!Action();
         }
 
         ResolvedBulletML bml = bulletWithActions(orientation, actions);
@@ -601,8 +573,7 @@ public class ActionRunner: BulletMLRunner {
         return Status.CONTINUE;
       }
 
-      Action* action = repeat.action.peek!Action();
-      assert(action !is null);
+      Action action = repeat.action.get!Action();
       zipper = new ActionZipper(zipper, action.contents, to!size_t(times));
       return Status.UPDATED;
     }

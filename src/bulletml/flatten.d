@@ -22,11 +22,11 @@ public ResolvedBulletML resolve(BulletML bml) {
 
   resolved.orientation = bml.orientation;
   foreach (elem; bml.elements) {
-    Action* action = elem.peek!Action();
-    if (action !is null &&
-        action.label[0..3] == "top") {
-      resolved.elements ~= BulletML.Element(_resolve!Action(bml, *action, []));
-    }
+    elem.tryVisit!((Action action) {
+        if (action.label[0..3] == "top") {
+          resolved.elements ~= BulletML.Element(_resolve!Action(bml, action, []));
+        }
+      })();
   }
 
   return new ResolvedBulletML(resolved);
