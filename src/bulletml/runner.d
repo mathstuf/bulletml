@@ -12,7 +12,7 @@ private import std.variant;
 public interface BulletManager: ExpressionContext {
   private:
     public void createSimpleBullet(double direction, double speed);
-    public void createBullet(const Resolved!BulletML state, double direction, double speed);
+    public void createBullet(const ResolvedBulletML state, double direction, double speed);
     public uint getTurn();
 
     public double getBulletDirection();
@@ -66,10 +66,10 @@ private class LinearFunction(X, Y): Function!(X, Y) {
 }
 
 public BulletMLRunner createRunner(BulletManager manager, BulletML bml) {
-  return createRunner(manager, resolve!BulletML(bml));
+  return createRunner(manager, resolve(bml));
 }
 
-public BulletMLRunner createRunner(BulletManager manager, Resolved!BulletML bml) {
+public BulletMLRunner createRunner(BulletManager manager, const ResolvedBulletML bml) {
   return new GroupRunner(manager, bml);
 }
 
@@ -83,7 +83,7 @@ private class GroupRunner: BulletMLRunner {
   private:
     BulletMLRunner runners[];
 
-    package this(BulletManager manager, Resolved!BulletML bml) {
+    package this(BulletManager manager, const ResolvedBulletML bml) {
       BulletML.Orientation orientation = bml.get().orientation;
       foreach (elem; bml.get().elements) {
         Action* action = elem.peek!Action();
@@ -568,7 +568,7 @@ public class ActionRunner: BulletMLRunner {
           actions ~= *action;
         }
 
-        Resolved!BulletML bml = bulletWithActions(orientation, actions);
+        ResolvedBulletML bml = bulletWithActions(orientation, actions);
         manager.createBullet(bml, bDirection.get(), bSpeed.get());
       } else {
         // A boring bullet.

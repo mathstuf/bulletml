@@ -4,20 +4,20 @@ private import bulletml.data.bulletml;
 
 private import std.traits;
 
-public class Resolved(T) {
+public class ResolvedBulletML {
   private:
-    T item;
+    BulletML bml;
 
-    package this(T item) {
-      this.item = item;
+    package this(BulletML bml) {
+      this.bml = bml;
     }
 
-    public T get() {
-      return item;
+    public const(BulletML) get() const {
+      return bml;
     }
 }
 
-public Resolved!BulletML resolve(T: BulletML)(BulletML bml) {
+public ResolvedBulletML resolve(BulletML bml) {
   BulletML resolved = new BulletML;
 
   resolved.orientation = bml.orientation;
@@ -29,10 +29,10 @@ public Resolved!BulletML resolve(T: BulletML)(BulletML bml) {
     }
   }
 
-  return new Resolved!BulletML(resolved);
+  return new ResolvedBulletML(resolved);
 }
 
-public Resolved!BulletML bulletWithActions(BulletML.Orientation orientation, Action actions[]) {
+public ResolvedBulletML bulletWithActions(BulletML.Orientation orientation, Action actions[]) {
   BulletML resolved = new BulletML;
 
   resolved.orientation = orientation;
@@ -40,7 +40,7 @@ public Resolved!BulletML bulletWithActions(BulletML.Orientation orientation, Act
     resolved.elements ~= BulletML.Element(action);
   }
 
-  return new Resolved!BulletML(resolved);
+  return new ResolvedBulletML(resolved);
 }
 
 private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression params[]) {
