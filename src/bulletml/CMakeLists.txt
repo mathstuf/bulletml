@@ -14,7 +14,6 @@ add_library(bulletml STATIC
 target_link_libraries(bulletml
     LINK_PUBLIC
         bulletml_data
-    LINK_PRIVATE
         bulletml_elements)
 set_target_properties(bulletml
     PROPERTIES
@@ -34,6 +33,7 @@ install(
 # Export to the build tree.
 export(
     TARGETS   bulletml_data
+              bulletml_elements
               bulletml
     NAMESPACE BulletML::
     FILE      "${CMAKE_BINARY_DIR}/bulletml-config-targets.cmake")
