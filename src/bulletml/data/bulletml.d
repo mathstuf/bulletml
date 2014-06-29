@@ -20,7 +20,7 @@ public class BulletML {
         Action,
         Fire
         ) Element;
-    Element elements[];
+    Element[] elements;
   private:
     public this() {
       orientation = Orientation.NONE;

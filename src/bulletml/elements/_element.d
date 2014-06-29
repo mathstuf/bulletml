@@ -133,7 +133,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
   };
 }
 
-private void _parse(P, D)(ElementParser p, string tag, ref D store[]) {
+private void _parse(P, D)(ElementParser p, string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
     D dat = new D;
     P elem = new P(dat);
@@ -144,7 +144,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store[]) {
   };
 }
 
-private void _parse(P, D, T)(ElementParser p, string tag, ref D store[]) {
+private void _parse(P, D, T)(ElementParser p, string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
     T dat = new T;
     P elem = new P(dat);
@@ -155,7 +155,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store[]) {
   };
 }
 
-private void _parse(P, D, U: T*, T)(ElementParser p, string tag, ref D store[]) {
+private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
     T dat = new T;
     P elem = new P(dat);
@@ -166,20 +166,20 @@ private void _parse(P, D, U: T*, T)(ElementParser p, string tag, ref D store[]) 
   };
 }
 
-public void parseOne(P, D)(ElementParser p, string tag, ref D store) {
+public void parseOne(P, D)(ElementParser p, const string tag, ref D store) {
   bool parsed;
   Fuse fuse = new Fuse(new MissingTag(tag, p));
 
   _parse!(P, D)(p, tag, store, parsed, fuse);
 }
 
-public void parseOptional(P, D)(ElementParser p, string tag, ref Nullable!D store) {
+public void parseOptional(P, D)(ElementParser p, const string tag, ref Nullable!D store) {
   bool parsed;
 
   _parse!(P, D)(p, tag, store, parsed);
 }
 
-public void parseOneOf(P, D)(ElementParser p, string tags[], ref D store) {
+public void parseOneOf(P, D)(ElementParser p, const string[] tags, ref D store) {
   bool parsed;
   Fuse fuse = new Fuse(new MissingTag("<many>", p));
 
@@ -190,11 +190,11 @@ public void parseOneOf(P, D)(ElementParser p, string tags[], ref D store) {
   }
 }
 
-public void parseMany(P, D)(ElementParser p, string tags, ref D store[]) {
+public void parseMany(P, D)(ElementParser p, const string tags, ref D[] store) {
   _parse!(P, D)(p, tags, store);
 }
 
-public void parseManyOf(P, D)(ElementParser p, string tags[], ref D store[]) {
+public void parseManyOf(P, D)(ElementParser p, const string[] tags, ref D[] store) {
   static assert(P.AllowedTypes.length == D.AllowedTypes.length);
   assert(D.AllowedTypes.length == tags.length);
 

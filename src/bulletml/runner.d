@@ -80,7 +80,7 @@ public interface BulletMLRunner {
 
 private class GroupRunner: BulletMLRunner {
   private:
-    BulletMLRunner runners[];
+    BulletMLRunner[] runners;
 
     package this(BulletManager manager, const ResolvedBulletML bml) {
       BulletML.Orientation orientation = bml.get().orientation;
@@ -113,19 +113,19 @@ public class ActionRunner: BulletMLRunner {
     private class ActionZipper {
       public:
         ActionZipper par;
-        Action.AElement actions[];
+        Action.AElement[] actions;
       private:
         size_t idx;
         size_t repeat;
 
-        public this(ActionZipper parent, Action.AElement actions[], size_t repeat = 1) {
+        public this(ActionZipper parent, Action.AElement[] actions, size_t repeat = 1) {
           par = parent;
           this.actions = actions;
           idx = 0;
           this.repeat = repeat;
         }
 
-        public this(Action.AElement actions[]) {
+        public this(Action.AElement[] actions) {
           this(null, actions);
         }
 
@@ -534,7 +534,7 @@ public class ActionRunner: BulletMLRunner {
       prevSpeed = bSpeed;
 
       if (bullet.actions.length) {
-        Action actions[];
+        Action[] actions;
         foreach (act; bullet.actions) {
           actions ~= act.get!Action();
         }

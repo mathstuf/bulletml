@@ -27,7 +27,7 @@ public class Action {
         Action*, // TODO: Fix this.
         ORef!Action
         ) AElement;
-    AElement contents[];
+    AElement[] contents;
   private:
     public this() {
     }

@@ -6,7 +6,7 @@ public class ORef(T) {
   public:
     alias T Referent;
     string label;
-    Param params[];
+    Param[] params;
   private:
     public this() {
       label = "";

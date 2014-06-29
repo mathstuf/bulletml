@@ -14,7 +14,7 @@ public class ERepeat: BulletMLElement {
     public override void setup(ElementParser p) {
       parseOne!ETimes(p, "times", value.times);
 
-      string tags[];
+      string[] tags;
       tags ~= "action";
       tags ~= "actionRef";
 

@@ -32,7 +32,7 @@ public ResolvedBulletML resolve(BulletML bml) {
   return new ResolvedBulletML(resolved);
 }
 
-public ResolvedBulletML bulletWithActions(BulletML.Orientation orientation, Action actions[]) {
+public ResolvedBulletML bulletWithActions(BulletML.Orientation orientation, Action[] actions) {
   BulletML resolved = new BulletML;
 
   resolved.orientation = orientation;
@@ -43,7 +43,7 @@ public ResolvedBulletML bulletWithActions(BulletML.Orientation orientation, Acti
   return new ResolvedBulletML(resolved);
 }
 
-private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression params[]) {
+private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression[] params) {
   Accel resolved = new Accel;
 
   resolved.horizontal = _resolve(bml, unresolved.horizontal, params);
@@ -53,7 +53,7 @@ private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression para
   return resolved;
 }
 
-private Action _resolve(T: Action)(BulletML bml, Action unresolved, Expression params[]) {
+private Action _resolve(T: Action)(BulletML bml, Action unresolved, Expression[] params) {
   Action resolved = new Action;
 
   resolved.label = unresolved.label;
@@ -62,7 +62,7 @@ private Action _resolve(T: Action)(BulletML bml, Action unresolved, Expression p
   return resolved;
 }
 
-private Bullet _resolve(T: Bullet)(BulletML bml, Bullet unresolved, Expression params[]) {
+private Bullet _resolve(T: Bullet)(BulletML bml, Bullet unresolved, Expression[] params) {
   Bullet resolved = new Bullet;
 
   resolved.label = unresolved.label;
@@ -73,7 +73,7 @@ private Bullet _resolve(T: Bullet)(BulletML bml, Bullet unresolved, Expression p
   return resolved;
 }
 
-private ChangeDirection _resolve(T: ChangeDirection)(BulletML bml, ChangeDirection unresolved, Expression params[]) {
+private ChangeDirection _resolve(T: ChangeDirection)(BulletML bml, ChangeDirection unresolved, Expression[] params) {
   ChangeDirection resolved = new ChangeDirection;
 
   resolved.direction = _resolve!Direction(bml, unresolved.direction, params);
@@ -82,7 +82,7 @@ private ChangeDirection _resolve(T: ChangeDirection)(BulletML bml, ChangeDirecti
   return resolved;
 }
 
-private ChangeSpeed _resolve(T: ChangeSpeed)(BulletML bml, ChangeSpeed unresolved, Expression params[]) {
+private ChangeSpeed _resolve(T: ChangeSpeed)(BulletML bml, ChangeSpeed unresolved, Expression[] params) {
   ChangeSpeed resolved = new ChangeSpeed;
 
   resolved.speed = _resolve!Speed(bml, unresolved.speed, params);
@@ -91,7 +91,7 @@ private ChangeSpeed _resolve(T: ChangeSpeed)(BulletML bml, ChangeSpeed unresolve
   return resolved;
 }
 
-private Direction _resolve(T: Direction)(BulletML bml, Direction unresolved, Expression params[]) {
+private Direction _resolve(T: Direction)(BulletML bml, Direction unresolved, Expression[] params) {
   Direction resolved = new Direction;
 
   resolved.type = unresolved.type;
@@ -100,7 +100,7 @@ private Direction _resolve(T: Direction)(BulletML bml, Direction unresolved, Exp
   return resolved;
 }
 
-private Fire _resolve(T: Fire)(BulletML bml, Fire unresolved, Expression params[]) {
+private Fire _resolve(T: Fire)(BulletML bml, Fire unresolved, Expression[] params) {
   Fire resolved = new Fire;
 
   resolved.label = unresolved.label;
@@ -111,7 +111,7 @@ private Fire _resolve(T: Fire)(BulletML bml, Fire unresolved, Expression params[
   return resolved;
 }
 
-private Horizontal _resolve(T: Horizontal)(BulletML bml, Horizontal unresolved, Expression params[]) {
+private Horizontal _resolve(T: Horizontal)(BulletML bml, Horizontal unresolved, Expression[] params) {
   Horizontal resolved = new Horizontal;
 
   resolved.type = unresolved.type;
@@ -120,7 +120,7 @@ private Horizontal _resolve(T: Horizontal)(BulletML bml, Horizontal unresolved, 
   return resolved;
 }
 
-private Param _resolve(T: Param)(BulletML bml, Param unresolved, Expression params[]) {
+private Param _resolve(T: Param)(BulletML bml, Param unresolved, Expression[] params) {
   Param resolved = new Param;
 
   resolved.value = resolveExpr(unresolved.value, params).get();
@@ -128,7 +128,7 @@ private Param _resolve(T: Param)(BulletML bml, Param unresolved, Expression para
   return resolved;
 }
 
-private Repeat _resolve(T: Repeat)(BulletML bml, Repeat unresolved, Expression params[]) {
+private Repeat _resolve(T: Repeat)(BulletML bml, Repeat unresolved, Expression[] params) {
   Repeat resolved = new Repeat;
 
   resolved.times = _resolve!Times(bml, unresolved.times, params);
@@ -137,7 +137,7 @@ private Repeat _resolve(T: Repeat)(BulletML bml, Repeat unresolved, Expression p
   return resolved;
 }
 
-private Speed _resolve(T: Speed)(BulletML bml, Speed unresolved, Expression params[]) {
+private Speed _resolve(T: Speed)(BulletML bml, Speed unresolved, Expression[] params) {
   Speed resolved = new Speed;
 
   resolved.type = unresolved.type;
@@ -146,7 +146,7 @@ private Speed _resolve(T: Speed)(BulletML bml, Speed unresolved, Expression para
   return resolved;
 }
 
-private Term _resolve(T: Term)(BulletML bml, Term unresolved, Expression params[]) {
+private Term _resolve(T: Term)(BulletML bml, Term unresolved, Expression[] params) {
   Term resolved = new Term;
 
   resolved.value = resolveExpr(unresolved.value, params);
@@ -154,7 +154,7 @@ private Term _resolve(T: Term)(BulletML bml, Term unresolved, Expression params[
   return resolved;
 }
 
-private Times _resolve(T: Times)(BulletML bml, Times unresolved, Expression params[]) {
+private Times _resolve(T: Times)(BulletML bml, Times unresolved, Expression[] params) {
   Times resolved = new Times;
 
   resolved.value = resolveExpr(unresolved.value, params);
@@ -162,13 +162,13 @@ private Times _resolve(T: Times)(BulletML bml, Times unresolved, Expression para
   return resolved;
 }
 
-private Vanish _resolve(T: Vanish)(BulletML bml, Vanish unresolved, Expression params[]) {
+private Vanish _resolve(T: Vanish)(BulletML bml, Vanish unresolved, Expression[] params) {
   Vanish resolved = new Vanish;
 
   return resolved;
 }
 
-private Vertical _resolve(T: Vertical)(BulletML bml, Vertical unresolved, Expression params[]) {
+private Vertical _resolve(T: Vertical)(BulletML bml, Vertical unresolved, Expression[] params) {
   Vertical resolved = new Vertical;
 
   resolved.type = unresolved.type;
@@ -177,7 +177,7 @@ private Vertical _resolve(T: Vertical)(BulletML bml, Vertical unresolved, Expres
   return resolved;
 }
 
-private Wait _resolve(T: Wait)(BulletML bml, Wait unresolved, Expression params[]) {
+private Wait _resolve(T: Wait)(BulletML bml, Wait unresolved, Expression[] params) {
   Wait resolved = new Wait;
 
   resolved.frames = resolveExpr(unresolved.frames, params);
@@ -185,7 +185,7 @@ private Wait _resolve(T: Wait)(BulletML bml, Wait unresolved, Expression params[
   return resolved;
 }
 
-private Expression resolveExpr(Expression expr, Expression params[]) {
+private Expression resolveExpr(Expression expr, Expression[] params) {
   if (expr.isConstant()) {
     return expr;
   }
@@ -208,16 +208,16 @@ private Expression resolveExpr(Expression expr, Expression params[]) {
   return expr;
 }
 
-private Nullable!T _resolve(T)(BulletML bml, Nullable!T unresolved, Expression params[]) {
-  if (unresolved.isNull()) {
+private Nullable!T _resolve(T)(BulletML bml, Nullable!T unresolved, Expression[] params) {
+  if (unresolved.isNull) {
     return unresolved;
   }
 
   return Nullable!T(_resolve!T(bml, unresolved.get(), params));
 }
 
-private T _resolve(U: ORef!T, T)(BulletML bml, U unresolved, Expression params[]) {
-  Expression resolvedParams[];
+private T _resolve(U: ORef!T, T)(BulletML bml, U unresolved, Expression[] params) {
+  Expression[] resolvedParams;
 
   foreach (Param param; unresolved.params) {
     resolvedParams ~= resolveExpr(param.value, params);
@@ -227,7 +227,7 @@ private T _resolve(U: ORef!T, T)(BulletML bml, U unresolved, Expression params[]
   return _resolve!T(bml, target, resolvedParams);
 }
 
-private U _resolve(U: T[], T)(BulletML bml, U unresolveds, Expression params[]) {
+private U _resolve(U: T[], T)(BulletML bml, U unresolveds, Expression[] params) {
   U resolved;
 
   foreach (unresolved; unresolveds) {
@@ -237,7 +237,7 @@ private U _resolve(U: T[], T)(BulletML bml, U unresolveds, Expression params[]) 
   return resolved;
 }
 
-private D _resolve(D: VariantN!A, A...)(BulletML bml, D unresolved, Expression params[]) {
+private D _resolve(D: VariantN!A, A...)(BulletML bml, D unresolved, Expression[] params) {
   foreach (T; D.AllowedTypes) {
     T* item = unresolved.peek!T();
     if (item !is null) {
@@ -267,7 +267,7 @@ private T findElement(T)(BulletML bml, string label) {
   return null;
 }
 
-private T _findElement(T, U)(U elems[], string label) {
+private T _findElement(T, U)(U[] elems, string label) {
   foreach (elem; elems) {
     T item = _findElement!T(elem, label);
     if (item !is null) {

@@ -17,7 +17,7 @@ public class Bullet {
         Action,
         ORef!Action
         ) BAction;
-    BAction actions[];
+    BAction[] actions;
   private:
     public this() {
     }

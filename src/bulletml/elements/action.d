@@ -18,7 +18,7 @@ public class EAction: BulletMLElement {
     mixin Storage!Action;
   private:
     public override void setup(ElementParser p) {
-      string tags[];
+      string[] tags;
       tags ~= "repeat";
       tags ~= "fire";
       tags ~= "fireRef";

@@ -28,7 +28,7 @@ public class EBulletML: BulletMLElement {
         throw new InvalidAttribute("type", type, p);
       }
 
-      string tags[];
+      string[] tags;
       tags ~= "bullet";
       tags ~= "action";
       tags ~= "fire";
