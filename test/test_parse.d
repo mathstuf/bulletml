@@ -4,7 +4,7 @@ private import std.stdio;
 private import bml = bulletml.bulletml;
 
 int main(string[] args) {
-  string dir = args[0];
+  string dir = args[1];
   int ret = 0;
 
   foreach (string fname; dirEntries(dir, "*.xml", SpanMode.breadth)) {
