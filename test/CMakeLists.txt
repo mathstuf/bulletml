@@ -4,7 +4,8 @@ externalproject_add(bulletml-examples-data
   GIT_REPOSITORY https://github.com/dmanning23/BulletMLExamples
   GIT_TAG        master
 
-  DOWNLOAD_DIR      "${CMAKE_CURRENT_BINARY_DIR}/data"
+  PREFIX            "${CMAKE_CURRENT_BINARY_DIR}/data"
+
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     ""
   INSTALL_COMMAND   "")
