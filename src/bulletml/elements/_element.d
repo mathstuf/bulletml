@@ -76,6 +76,23 @@ public class BulletMLElement {
     }
 }
 
+private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
+                          ref bool parsed) {
+  p.onStartTag[tag] = (ElementParser xml) {
+    if (parsed) {
+      throw new DuplicateTag(xml, p);
+    }
+
+    D dat = new D;
+    P elem = new P(dat);
+
+    elem.setup(xml);
+
+    store = Nullable!D(dat);
+    parsed = true;
+  };
+}
+
 private void _parse(P, D)(ElementParser p, string tag, ref D store,
                           ref bool parsed) {
   p.onStartTag[tag] = (ElementParser xml) {
