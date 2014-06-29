@@ -12,6 +12,7 @@ int main(string[] args) {
       bml.BulletML b = bml.parse(fname);
     } catch (Throwable t) {
       writeln("Caught exception: " ~ t.toString());
+      ret = 1;
     }
   }
 
