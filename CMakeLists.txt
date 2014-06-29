@@ -8,3 +8,7 @@ endif ()
 
 add_subdirectory(src)
 add_subdirectory(conf)
+
+if (BULLETML_ENABLE_TESTING)
+    add_subdirectory(test)
+endif ()
