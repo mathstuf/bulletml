@@ -14,9 +14,10 @@ public class ERepeat: BulletMLElement {
     public override void setup(ElementParser p) {
       parseOne!ETimes(p, "times", value.times);
 
-      string[] tags;
-      tags ~= "action";
-      tags ~= "actionRef";
+      static const string[] tags = [
+        "action",
+        "actionRef",
+      ];
 
       alias Algebraic!(EAction, EORef!Action) Parser;
 

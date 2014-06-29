@@ -16,9 +16,10 @@ public class EBullet: BulletMLElement {
       parseOptional!EDirection(p, "direction", value.direction);
       parseOptional!ESpeed(p, "speed", value.speed);
 
-      string[] tags;
-      tags ~= "action";
-      tags ~= "actionRef";
+      static const string[] tags = [
+        "action",
+        "actionRef",
+      ];
 
       alias Algebraic!(EAction, EORef!Action) Parser;
 

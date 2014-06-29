@@ -28,10 +28,11 @@ public class EBulletML: BulletMLElement {
         throw new InvalidAttribute("type", type, p);
       }
 
-      string[] tags;
-      tags ~= "bullet";
-      tags ~= "action";
-      tags ~= "fire";
+      static const string[] tags = [
+        "bullet",
+        "action",
+        "fire",
+      ];
 
       alias Algebraic!(EBullet, EAction, EFire) Parser;
 

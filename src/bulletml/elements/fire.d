@@ -16,9 +16,10 @@ public class EFire: BulletMLElement {
       parseOptional!EDirection(p, "direction", value.direction);
       parseOptional!ESpeed(p, "speed", value.speed);
 
-      string[] tags;
-      tags ~= "bullet";
-      tags ~= "bulletRef";
+      static const string[] tags = [
+        "bullet",
+        "bulletRef",
+      ];
 
       alias Algebraic!(EBullet, EORef!Bullet) Parser;
 

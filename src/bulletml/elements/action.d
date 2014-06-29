@@ -18,17 +18,18 @@ public class EAction: BulletMLElement {
     mixin Storage!Action;
   private:
     public override void setup(ElementParser p) {
-      string[] tags;
-      tags ~= "repeat";
-      tags ~= "fire";
-      tags ~= "fireRef";
-      tags ~= "changeSpeed";
-      tags ~= "changeDirection";
-      tags ~= "accel";
-      tags ~= "wait";
-      tags ~= "vanish";
-      tags ~= "action";
-      tags ~= "actionRef";
+      static const string[] tags = [
+        "repeat",
+        "fire",
+        "fireRef",
+        "changeSpeed",
+        "changeDirection",
+        "accel",
+        "wait",
+        "vanish",
+        "action",
+        "actionRef",
+      ];
 
       alias Algebraic!(
           ERepeat,
