@@ -600,7 +600,3 @@ public class ActionRunner: BulletMLRunner {
       }
     }
 }
-
-public interface IBullet {
-  private:
-}
