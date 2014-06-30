@@ -188,6 +188,10 @@ public void parseOne(P, D)(ElementParser p, const string tag, ref D store) {
   Fuse fuse = new Fuse(new MissingTag(tag, p));
 
   _parse!(P, D)(p, tag, store, parsed, fuse);
+
+  p.onEndTag[p.tag().name] = (const Element elem) {
+    fuse.check();
+  };
 }
 
 public void parseOptional(P, D)(ElementParser p, const string tag, ref Nullable!D store) {
@@ -206,6 +210,10 @@ public void parseOneOf(P, D)(ElementParser p, const string[] tags, ref D store) 
     parsed[i] = new OnlyOnce;
     _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store, parsed[i], fuse);
   }
+
+  p.onEndTag[p.tag().name] = (const Element elem) {
+    fuse.check();
+  };
 }
 
 public void parseMany(P, D)(ElementParser p, const string tag, ref D[] store) {
@@ -250,7 +258,7 @@ private class Fuse {
       exc = err;
     }
 
-    public ~this() {
+    public void check() {
       if (exc !is null) {
         throw exc;
       }
