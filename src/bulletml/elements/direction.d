@@ -9,7 +9,7 @@ public class EDirection: BulletMLElement {
     mixin Storage!Direction;
   private:
     public override void setup(ElementParser p) {
-      string type = p.tag.attr["type"];
+      string type = p.tag.attr.get("type", "aim");
       switch (type) {
       case "aim":
         value.type = Direction.DirectionType.AIM;

@@ -9,7 +9,7 @@ public class ESpeed: BulletMLElement {
     mixin Storage!Speed;
   private:
     public override void setup(ElementParser p) {
-      string type = p.tag.attr["type"];
+      string type = p.tag.attr.get("type", "absolute");
       switch (type) {
       case "absolute":
         value.type = ChangeType.ABSOLUTE;

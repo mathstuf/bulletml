@@ -13,7 +13,7 @@ public class EBulletML: BulletMLElement {
     mixin Storage!BulletML;
   private:
     public override void setup(ElementParser p) {
-      string type = p.tag.attr["type"];
+      string type = p.tag.attr.get("type", "none");
       switch (type) {
       case "none":
         value.orientation = BulletML.Orientation.NONE;

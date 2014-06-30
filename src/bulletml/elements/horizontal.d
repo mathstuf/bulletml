@@ -11,7 +11,7 @@ public class EHorizontal: BulletMLElement {
     mixin Storage!Horizontal;
   private:
     public override void setup(ElementParser p) {
-      string typeStr = p.tag.attr["type"];
+      string typeStr = p.tag.attr.get("type", "absolute");
       switch (typeStr) {
       case "absolute":
         value.type = ChangeType.ABSOLUTE;
