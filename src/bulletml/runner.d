@@ -573,7 +573,10 @@ public class ActionRunner: BulletMLRunner {
         return Status.CONTINUE;
       }
 
-      Action action = repeat.action.get!Action();
+      Action action;
+      foreach (Repeat.RAction raction; repeat.actions) {
+        action.contents ~= Action.AElement(raction.peek!Action());
+      }
       zipper = new ActionZipper(zipper, action.contents, to!size_t(times));
       return Status.UPDATED;
     }

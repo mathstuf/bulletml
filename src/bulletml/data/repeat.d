@@ -13,7 +13,7 @@ public class Repeat {
         Action,
         ORef!Action
         ) RAction;
-    RAction action;
+    RAction[] actions;
   private:
     public this() {
       times = new Times;

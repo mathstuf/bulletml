@@ -132,7 +132,7 @@ private Repeat _resolve(T: Repeat)(BulletML bml, Repeat unresolved, Expression[]
   Repeat resolved = new Repeat;
 
   resolved.times = _resolve!Times(bml, unresolved.times, params);
-  resolved.action = _resolve(bml, unresolved.action, params);
+  resolved.actions = _resolve(bml, unresolved.actions, params);
 
   return resolved;
 }
