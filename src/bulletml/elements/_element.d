@@ -15,7 +15,7 @@ public class InvalidBulletML: Exception {
 public class MissingTag: InvalidBulletML {
   private:
     public this(string tag, ElementParser p) {
-      super("The \'" ~ p.tag().name ~ "\' tag requires " ~
+      super("The \'" ~ p.tag().name ~ "\' tag requires "
             "a '" ~ tag ~ "' child; none were found");
     }
 }
@@ -23,7 +23,7 @@ public class MissingTag: InvalidBulletML {
 public class InvalidTag: InvalidBulletML {
   private:
     public this(string tag, ElementParser p) {
-      super("The \'" ~ p.tag().name ~ "\' tag is not " ~
+      super("The \'" ~ p.tag().name ~ "\' tag is not "
             "allowed to have a '" ~ tag ~ "' child");
     }
 }
@@ -39,7 +39,7 @@ public class InvalidAttribute: InvalidBulletML {
 public class DuplicateTag: InvalidBulletML {
   private:
     public this(ElementParser child, ElementParser par) {
-      super("The \'" ~ child.tag().name ~ "\' tag may " ~
+      super("The \'" ~ child.tag().name ~ "\' tag may "
             "not be duplicated in " ~ par.tag().name);
     }
 }
