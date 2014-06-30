@@ -183,6 +183,32 @@ private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] s
   };
 }
 
+private void _parse(P, D, T)(ElementParser p, string tag, ref D[] store,
+                             Fuse fuse) {
+  p.onStartTag[tag] = (ElementParser xml) {
+    T dat = new T;
+    P elem = new P(&dat);
+
+    elem.setup(xml);
+
+    fuse.defuse();
+    store ~= *new D(dat);
+  };
+}
+
+private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] store,
+                                    Fuse fuse) {
+  p.onStartTag[tag] = (ElementParser xml) {
+    T dat = new T;
+    P elem = new P(&dat);
+
+    elem.setup(xml);
+
+    fuse.defuse();
+    store ~= *new D(&dat);
+  };
+}
+
 public void parseOne(P, D)(ElementParser p, const string tag, ref D store) {
   OnlyOnce parsed = new OnlyOnce;
   Fuse fuse = new Fuse(new MissingTag(tag, p));
@@ -209,6 +235,35 @@ public void parseOneOf(P, D)(ElementParser p, const string[] tags, ref D store) 
   foreach (i, T; D.AllowedTypes) {
     parsed[i] = new OnlyOnce;
     _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store, parsed[i], fuse);
+  }
+
+  p.onEndTag[p.tag().name] = (const Element elem) {
+    fuse.check();
+  };
+}
+
+public void parseAtLeastOneOf(P, D)(ElementParser p, const string tag, ref D[] store) {
+  Fuse fuse = new Fuse(new MissingTag("<many>", p));
+
+  _parse!(P, D)(p, tag, store, fuse);
+
+  p.onEndTag[p.tag().name] = (const Element elem) {
+    fuse.check();
+  };
+}
+
+public void parseAtLeastOneOf(P, D)(ElementParser p, const string[] tags, ref D[] store) {
+  Fuse fuse = new Fuse(new MissingTag("<many>", p));
+
+  static assert(P.AllowedTypes.length == D.AllowedTypes.length);
+  assert(D.AllowedTypes.length == tags.length);
+
+  foreach (i, T; D.AllowedTypes) {
+    static if (isPointer!T) {
+      _parse!(P.AllowedTypes[i], D, T, PointerTarget!T)(p, tags[i], store, fuse);
+    } else {
+      _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store, fuse);
+    }
   }
 
   p.onEndTag[p.tag().name] = (const Element elem) {
