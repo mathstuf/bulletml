@@ -19,7 +19,7 @@ public BulletML parse(InputStream istr) {
   }
   DocumentParser p = new DocumentParser(contents.idup);
   BulletML bml = new BulletML;
-  EBulletML elem = new EBulletML(bml);
+  EBulletML elem = new EBulletML(&bml);
 
   elem.setup(p);
 

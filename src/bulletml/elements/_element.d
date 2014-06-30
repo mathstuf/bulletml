@@ -48,8 +48,8 @@ public mixin template Storage(T) {
   public:
     T* value;
   private:
-    public this(T value) {
-      this.value = &value;
+    public this(T* value) {
+      this.value = value;
     }
 }
 
@@ -85,7 +85,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
     }
 
     D dat = new D;
-    P elem = new P(dat);
+    P elem = new P(&dat);
 
     elem.setup(xml);
 
@@ -121,7 +121,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
     }
 
     D dat = new D;
-    P elem = new P(dat);
+    P elem = new P(&dat);
 
     elem.setup(xml);
 
@@ -142,7 +142,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
     }
 
     T dat = new T;
-    P elem = new P(dat);
+    P elem = new P(&dat);
 
     elem.setup(xml);
 
@@ -157,7 +157,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
 private void _parse(P, D)(ElementParser p, string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
     D dat = new D;
-    P elem = new P(dat);
+    P elem = new P(&dat);
 
     elem.setup(xml);
 
@@ -168,7 +168,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D[] store) {
 private void _parse(P, D, T)(ElementParser p, string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
     T dat = new T;
-    P elem = new P(dat);
+    P elem = new P(&dat);
 
     elem.setup(xml);
 
@@ -179,7 +179,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D[] store) {
 private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
     T dat = new T;
-    P elem = new P(dat);
+    P elem = new P(&dat);
 
     elem.setup(xml);
 
