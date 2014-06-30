@@ -574,7 +574,7 @@ public class ActionRunner: BulletMLRunner {
       }
 
       Action action;
-      foreach (Repeat.RAction raction; repeat.actions) {
+      foreach (ref Repeat.RAction raction; repeat.actions) {
         action.contents ~= Action.AElement(raction.peek!Action());
       }
       zipper = new ActionZipper(zipper, action.contents, to!size_t(times));
