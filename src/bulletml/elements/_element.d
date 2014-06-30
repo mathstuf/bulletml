@@ -125,9 +125,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
 
     elem.setup(xml);
 
-    if (fuse !is null) {
-      fuse.defuse();
-    }
+    fuse.defuse();
     store = dat;
     parsed = true;
   };
@@ -146,9 +144,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
 
     elem.setup(xml);
 
-    if (fuse !is null) {
-      fuse.defuse();
-    }
+    fuse.defuse();
     store = dat;
     parsed = true;
   };
