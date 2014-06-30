@@ -113,7 +113,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
 }
 
 private void _parse(P, D)(ElementParser p, string tag, ref D store,
-                          OnlyOnce parsed, ref Fuse fuse) {
+                          OnlyOnce parsed, Fuse fuse) {
   string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
     if (parsed.triggered()) {
@@ -132,7 +132,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
 }
 
 private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
-                             OnlyOnce parsed, ref Fuse fuse) {
+                             OnlyOnce parsed, Fuse fuse) {
   string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
     if (parsed.triggered()) {
