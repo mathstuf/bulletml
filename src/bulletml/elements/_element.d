@@ -208,8 +208,8 @@ public void parseOneOf(P, D)(ElementParser p, const string[] tags, ref D store) 
   }
 }
 
-public void parseMany(P, D)(ElementParser p, const string tags, ref D[] store) {
-  _parse!(P, D)(p, tags, store);
+public void parseMany(P, D)(ElementParser p, const string tag, ref D[] store) {
+  _parse!(P, D)(p, tag, store);
 }
 
 public void parseManyOf(P, D)(ElementParser p, const string[] tags, ref D[] store) {
