@@ -77,10 +77,10 @@ public class BulletMLElement {
 }
 
 private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
-                          ref bool parsed) {
+                          OnlyOnce parsed) {
   string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
-    if (parsed) {
+    if (parsed.triggered()) {
       throw new DuplicateTag(xml, name);
     }
 
@@ -90,15 +90,15 @@ private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
     elem.setup(xml);
 
     store = Nullable!D(dat);
-    parsed = true;
+    parsed.trigger();
   };
 }
 
 private void _parse(P, D)(ElementParser p, string tag, ref D store,
-                          ref bool parsed) {
+                          OnlyOnce parsed) {
   string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
-    if (parsed) {
+    if (parsed.triggered()) {
       throw new DuplicateTag(xml, name);
     }
 
@@ -108,15 +108,15 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
     elem.setup(xml);
 
     store = dat;
-    parsed = true;
+    parsed.trigger();
   };
 }
 
 private void _parse(P, D)(ElementParser p, string tag, ref D store,
-                          ref bool parsed, ref Fuse fuse) {
+                          OnlyOnce parsed, ref Fuse fuse) {
   string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
-    if (parsed) {
+    if (parsed.triggered()) {
       throw new DuplicateTag(xml, name);
     }
 
@@ -127,15 +127,15 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
 
     fuse.defuse();
     store = dat;
-    parsed = true;
+    parsed.trigger();
   };
 }
 
 private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
-                             ref bool parsed, ref Fuse fuse) {
+                             OnlyOnce parsed, ref Fuse fuse) {
   string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
-    if (parsed) {
+    if (parsed.triggered()) {
       throw new DuplicateTag(xml, name);
     }
 
@@ -146,7 +146,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
 
     fuse.defuse();
     store = dat;
-    parsed = true;
+    parsed.trigger();
   };
 }
 
@@ -184,26 +184,27 @@ private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] s
 }
 
 public void parseOne(P, D)(ElementParser p, const string tag, ref D store) {
-  bool parsed;
+  OnlyOnce parsed = new OnlyOnce;
   Fuse fuse = new Fuse(new MissingTag(tag, p));
 
   _parse!(P, D)(p, tag, store, parsed, fuse);
 }
 
 public void parseOptional(P, D)(ElementParser p, const string tag, ref Nullable!D store) {
-  bool parsed;
+  OnlyOnce parsed = new OnlyOnce;
 
   _parse!(P, D)(p, tag, store, parsed);
 }
 
 public void parseOneOf(P, D)(ElementParser p, const string[] tags, ref D store) {
-  bool parsed;
+  OnlyOnce[D.AllowedTypes.length] parsed;
   Fuse fuse = new Fuse(new MissingTag("<many>", p));
 
   assert(D.AllowedTypes.length == tags.length);
 
   foreach (i, T; D.AllowedTypes) {
-    _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store, parsed, fuse);
+    parsed[i] = new OnlyOnce;
+    _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store, parsed[i], fuse);
   }
 }
 
@@ -222,6 +223,23 @@ public void parseManyOf(P, D)(ElementParser p, const string[] tags, ref D[] stor
       _parse!(P.AllowedTypes[i], D, T)(p, tags[i], store);
     }
   }
+}
+
+private class OnlyOnce {
+  private:
+    bool _triggered;
+
+    public this() {
+      _triggered = false;
+    }
+
+    public bool triggered() {
+      return _triggered;
+    }
+
+    public void trigger() {
+      _triggered = true;
+    }
 }
 
 private class Fuse {
