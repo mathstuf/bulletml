@@ -38,9 +38,9 @@ public class InvalidAttribute: InvalidBulletML {
 
 public class DuplicateTag: InvalidBulletML {
   private:
-    public this(ElementParser child, ElementParser par) {
+    public this(ElementParser child, string par) {
       super("The \'" ~ child.tag().name ~ "\' tag may "
-            "not be duplicated in " ~ par.tag().name);
+            "not be duplicated in " ~ par);
     }
 }
 
@@ -78,9 +78,10 @@ public class BulletMLElement {
 
 private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
                           ref bool parsed) {
+  string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
     if (parsed) {
-      throw new DuplicateTag(xml, p);
+      throw new DuplicateTag(xml, name);
     }
 
     D dat = new D;
@@ -95,9 +96,10 @@ private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
 
 private void _parse(P, D)(ElementParser p, string tag, ref D store,
                           ref bool parsed) {
+  string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
     if (parsed) {
-      throw new DuplicateTag(xml, p);
+      throw new DuplicateTag(xml, name);
     }
 
     D dat = new D;
@@ -112,9 +114,10 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
 
 private void _parse(P, D)(ElementParser p, string tag, ref D store,
                           ref bool parsed, ref Fuse fuse) {
+  string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
     if (parsed) {
-      throw new DuplicateTag(xml, p);
+      throw new DuplicateTag(xml, name);
     }
 
     D dat = new D;
@@ -132,9 +135,10 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
 
 private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
                              ref bool parsed, ref Fuse fuse) {
+  string name = p.tag().name;
   p.onStartTag[tag] = (ElementParser xml) {
     if (parsed) {
-      throw new DuplicateTag(xml, p);
+      throw new DuplicateTag(xml, name);
     }
 
     T dat = new T;
