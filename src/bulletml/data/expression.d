@@ -519,17 +519,23 @@ unittest {
       }
   }
 
-  Value epsilon = 1e-8;
+  Value epsilon = 1e-6;
   bool success = true;
 
   void testExpr(string expr, Value expected, ExpressionContext ctx) {
-    Expression e = parseExpression(expr);
-    Value actual = e(ctx);
-    if (epsilon < fabs(actual - expected)) {
-      writeln("--------");
-      writeln("Expression: " ~ expr);
-      writeln("Expected  : " ~ to!string(expected));
-      writeln("Actual    : " ~ to!string(actual));
+    try {
+      Expression e = parseExpression(expr);
+      Value actual = e(ctx);
+      Value diff = fabs(actual - expected);
+      if (epsilon < diff) {
+        writeln("--------");
+        writeln("Expression: " ~ expr);
+        writeln("Expected  : " ~ to!string(expected));
+        writeln("Actual    : " ~ to!string(actual));
+        success = false;
+      }
+    } catch (Throwable t) {
+      writeln("Failed to parse: " ~ expr ~ ": " ~ to!string(t));
       success = false;
     }
   }
