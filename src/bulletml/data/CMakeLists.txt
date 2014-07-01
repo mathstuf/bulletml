@@ -42,6 +42,9 @@ if (BULLETML_ENABLE_TESTING)
         ${data_srcs}
         _all.d
         _test.d)
+    set_target_properties(test_bulletml_data
+        PROPERTIES
+            COMPILE_FLAGS -funittest)
     add_test(
         NAME    bulletml_data
         COMMAND test_bulletml_data)
