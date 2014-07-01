@@ -187,7 +187,8 @@ public Expression parseExpression(string expr) {
       // Whitespace.
 
       // Push the current token to the output.
-      appendToken(token, tokens);
+      //appendToken(token, tokens);
+      //token = new Token(Token.TokenType.EMPTY);
     } else {
       // Unknown character.
       throw new ExpressionError("unrecognized character: " ~ to!string(c));
