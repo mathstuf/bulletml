@@ -583,6 +583,13 @@ unittest {
     testExpr("(2*1)+(2*3)", 8.0f, ctx);
     testExpr("(4*(1+2))*2", 24.0f, ctx);
     testExpr("(4+(1+2))+2", 9.0f, ctx);
+    testExpr("2*(2+1*2)", 8.0f, ctx);
+    testExpr("2*(2-1*2)", 0.0f, ctx);
+    testExpr("-(2)", -2.0f, ctx);
+    testExpr("-(-1)", 1.0f, ctx);
+    testExpr("(2*2)*(1+2)-4", 8.0f, ctx);
+    testExpr("(2*2)-(1+2)*4", -8.0f, ctx);
+    testExpr("2*(1-2*4)", -14.0f, ctx);
   }
 
   // Compound
@@ -600,6 +607,18 @@ unittest {
     testExpr("$four", 4.0f, ctx);
     testExpr("$five+$four", 9.0f, ctx);
     testExpr("$under_score", 1.0f, ctx);
+  }
+
+  // Failures from example BulletML files
+  {
+    testExpr("$four*(1-4*$under_score)", -12.0f, ctx);
+    testExpr("$four*(1 -4*$under_score)", -12.0f, ctx);
+    testExpr("$four * (1 - 4 * $under_score)", -12.0f, ctx);
+    testExpr("$four * (1.7 - 0.4 * $under_score)", 5.2f, ctx);
+    testExpr("-10+$four*20", 70.0f, ctx);
+    testExpr("((1-2)-3)", -4.0f, ctx);
+    testExpr("(360 / $four) + (3 + 12 * (1 - $under_score) * (1 - $under_score)) * (-1 + 2 * $five)", 117.0f, ctx);
+    testExpr(" -10+$four*20", 70.0f, ctx);
   }
 
   ctx.set("four", 5.0f);
@@ -631,7 +650,7 @@ unittest {
     caught = false;
     try {
       parseExpression("+");
-    } catch (AssertError) {
+    } catch (ExpressionError) {
       caught = true;
     }
     assert(caught);
