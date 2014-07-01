@@ -284,7 +284,7 @@ public Expression parseExpression(string expr) {
   // Extra operators are necessary (should have been caught when adding the
   // operator in the first place.
   if (nodeStack.length) {
-    throw new ExpressionError("Leftover tokens");
+    throw new ExpressionError("Leftover tokens: " ~ to!string(nodeStack.length) ~ ": " ~ to!string(nodeStack[0]));
   }
 
   return root;
