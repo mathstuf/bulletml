@@ -77,13 +77,22 @@ public Expression parseExpression(string expr) {
                c == '/' ||
                c == '%') {
       // Check for unary negation.
+      bool empOp = opStack.empty();
+      bool empTok = tokens.empty();
+      Token lOp = empOp ? null : opStack.back();
+      Token lTok = empTok ? null : tokens.back();
+
       if (c == '-' &&
           (token.isDone() &&
-           (tokens.empty() ||
-            !opStack.empty()))) {
-        Token opToken = new Token(Token.TokenType.NEGATE, 100);
+            // Beginning of input '-' -> negation
+           (empTok ||
+            // '-' after open paren -> negation
+            token.type() == Token.TokenType.OPEN_GROUP ||
+            // '-' after operator -> negation
+            token.type() == Token.TokenType.OPERATOR))) {
+        Token opToken = new Token(Token.TokenType.NEGATE, 3);
         opToken.append(c);
-        appendToken(opToken, opStack);
+        opStack ~= opToken;
         continue;
       }
       // The previous token must not have been empty.
@@ -99,7 +108,8 @@ public Expression parseExpression(string expr) {
       // Pop operators to the output while the priority is higher than the new
       // operator. Also stop once a non-operator is hit.
       while (!opStack.empty() &&
-             opStack.back.type() == Token.TokenType.OPERATOR) {
+             (opStack.back.type() == Token.TokenType.OPERATOR ||
+              opStack.back.type() == Token.TokenType.NEGATE)) {
         Token top = opStack.back;
         if (opToken.priority() <= top.priority()) {
           appendToken(top, tokens);
@@ -111,6 +121,8 @@ public Expression parseExpression(string expr) {
 
       // Push the operator onto the operator stack.
       opStack ~= opToken;
+      token = new Token(Token.TokenType.OPERATOR);
+      token.done();
     } else if (c == '(') {
       // An open parenthesis must either be the first token or there has to be
       // an operator available.
@@ -120,9 +132,9 @@ public Expression parseExpression(string expr) {
       appendToken(token, tokens);
 
       // Create the open parenthesis token and put it on the operator stack.
-      Token opToken = new Token(Token.TokenType.OPEN_GROUP);
-      opToken.append(c);
-      appendToken(opToken, opStack);
+      token = new Token(Token.TokenType.OPEN_GROUP);
+      token.append(c);
+      appendToken(token, opStack);
     } else if (c == ')') {
       // There must be something on the stack (at least an open parenthesis)
       // and a non-empty token (no trailing operator).
@@ -138,11 +150,15 @@ public Expression parseExpression(string expr) {
       }
 
       // Remove the opening parenthesis.
-      if (opStack.empty) {
+      if (opStack.empty()) {
         throw new ParenMismatch("column " ~ to!string(col));
       }
       opStack.removeBack();
 
+      if (!opStack.empty() && opStack.back.type() == Token.TokenType.NEGATE) {
+        tokens ~= opStack.back;
+        opStack.removeBack();
+      }
       token = new Token(Token.TokenType.EMPTY);
       token.done();
     } else if (isdigit(c)) {
@@ -202,7 +218,7 @@ public Expression parseExpression(string expr) {
   appendToken(token, tokens);
 
   // Pop the remaining operators.
-  while (!opStack.empty) {
+  while (!opStack.empty()) {
     Token top = opStack.back;
     // Check for any rogue open parentheses.
     if (top.type() == Token.TokenType.OPEN_GROUP) {
