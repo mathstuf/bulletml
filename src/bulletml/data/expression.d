@@ -33,7 +33,7 @@ private Expression checkPop(ref Array!Expression arr) {
 }
 
 private void appendToken(ref Token t, ref Array!Token ts) {
-  if (!t.isDone()) {
+  if (!t.isDone() && !t.empty() && t.type() != Token.TokenType.EMPTY) {
     ts ~= t;
     t.done();
   }
@@ -55,7 +55,7 @@ private ulong opPrio(char op) {
 
 public Expression parseExpression(string expr) {
   Array!Token tokens;
-  Token token = new Token(Token.TokenType.CONSTANT);
+  Token token = new Token(Token.TokenType.EMPTY);
   Array!Token opStack;
 
   ulong col = 0;
@@ -68,7 +68,7 @@ public Expression parseExpression(string expr) {
     if (c == '$') {
       // We must have a fully processed token before this (operator or
       // parentheses).
-      assert(token.isDone());
+      assert(token.isDone() || token.type() == Token.TokenType.EMPTY);
       // Start a variable token.
       token = new Token(Token.TokenType.VARIABLE);
     } else if (c == '+' ||
@@ -87,7 +87,7 @@ public Expression parseExpression(string expr) {
         continue;
       }
       // The previous token must not have been empty.
-      assert(!token.empty());
+      assert(!token.empty() || token.type() == Token.TokenType.EMPTY);
 
       // Push the current token to the output.
       appendToken(token, tokens);
@@ -126,7 +126,7 @@ public Expression parseExpression(string expr) {
     } else if (c == ')') {
       // There must be something on the stack (at least an open parenthesis)
       // and a non-empty token (no trailing operator).
-      assert(!opStack.empty && !token.empty());
+      assert(!opStack.empty() && (!token.empty() || token.type() == Token.TokenType.EMPTY));
 
       // Push the current token to the output.
       appendToken(token, tokens);
@@ -142,6 +142,9 @@ public Expression parseExpression(string expr) {
         throw new ParenMismatch("column " ~ to!string(col));
       }
       opStack.removeBack();
+
+      token = new Token(Token.TokenType.EMPTY);
+      token.done();
     } else if (isdigit(c)) {
       // Found a number.
 
@@ -153,7 +156,7 @@ public Expression parseExpression(string expr) {
       }
 
       // If this is a new number, create the token.
-      if (token.isDone()) {
+      if (token.isDone() || token.type() == Token.TokenType.EMPTY) {
         token = new Token(Token.TokenType.CONSTANT);
       }
 
@@ -420,6 +423,8 @@ private class Token {
       PARAMETER,
       OPEN_GROUP,
       CLOSE_GROUP,
+
+      EMPTY,
     }
   private:
     char[] value;
@@ -457,7 +462,7 @@ private class Token {
     }
 
     public bool empty() {
-      return !value.length;
+      return !value.length || type == TokenType.EMPTY;
     }
 
     public size_t size() {
