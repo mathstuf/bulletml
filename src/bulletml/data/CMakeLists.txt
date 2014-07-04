@@ -39,8 +39,8 @@ install(
 
 if (BULLETML_ENABLE_TESTING)
     add_executable(test_bulletml_data
-        ${data_srcs}
-        _all.d
+        expression.d
+
         _test.d)
     set_target_properties(test_bulletml_data
         PROPERTIES
