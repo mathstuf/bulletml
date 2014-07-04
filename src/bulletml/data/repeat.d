@@ -6,7 +6,7 @@ public import bulletml.data.times;
 
 public import std.variant;
 
-public class Repeat {
+public struct Repeat {
   public:
     Times times;
     alias Algebraic!(
@@ -14,8 +14,4 @@ public class Repeat {
         ORef!Action
         ) RAction;
     RAction[] actions;
-  private:
-    public this() {
-      times = new Times;
-    }
 }

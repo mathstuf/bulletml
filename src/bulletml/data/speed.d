@@ -3,13 +3,14 @@ module bulletml.data.speed;
 public import bulletml.data.change;
 public import bulletml.data.expression;
 
-public class Speed {
+public struct Speed {
   public:
     ChangeType type;
     Expression change;
   private:
-    public this() {
-      type = ChangeType.ABSOLUTE;
-      change = null;
+    public static Speed opCall() {
+      Speed s;
+      s.type = ChangeType.ABSOLUTE;
+      return s;
     }
 }

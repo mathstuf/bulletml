@@ -12,7 +12,7 @@ public import bulletml.data.wait;
 
 public import std.variant;
 
-public class Action {
+public struct Action {
   public:
     string label;
     alias Algebraic!(
@@ -28,7 +28,4 @@ public class Action {
         ORef!Action
         ) AElement;
     AElement[] contents;
-  private:
-    public this() {
-    }
 }

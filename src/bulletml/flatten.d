@@ -18,7 +18,7 @@ public class ResolvedBulletML {
 }
 
 public ResolvedBulletML resolve(BulletML bml) {
-  BulletML resolved = new BulletML;
+  BulletML resolved = BulletML();
 
   resolved.orientation = bml.orientation;
   foreach (elem; bml.elements) {
@@ -33,7 +33,7 @@ public ResolvedBulletML resolve(BulletML bml) {
 }
 
 public ResolvedBulletML bulletWithActions(BulletML.Orientation orientation, Action[] actions) {
-  BulletML resolved = new BulletML;
+  BulletML resolved = BulletML();
 
   resolved.orientation = orientation;
   foreach (Action action; actions) {
@@ -44,7 +44,7 @@ public ResolvedBulletML bulletWithActions(BulletML.Orientation orientation, Acti
 }
 
 private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression[] params) {
-  Accel resolved = new Accel;
+  Accel resolved = Accel();
 
   resolved.horizontal = _resolve(bml, unresolved.horizontal, params);
   resolved.vertical = _resolve(bml, unresolved.vertical, params);
@@ -54,7 +54,7 @@ private Accel _resolve(T: Accel)(BulletML bml, Accel unresolved, Expression[] pa
 }
 
 private Action _resolve(T: Action)(BulletML bml, Action unresolved, Expression[] params) {
-  Action resolved = new Action;
+  Action resolved = Action();
 
   resolved.label = unresolved.label;
   resolved.contents = _resolve(bml, unresolved.contents, params);
@@ -63,7 +63,7 @@ private Action _resolve(T: Action)(BulletML bml, Action unresolved, Expression[]
 }
 
 private Bullet _resolve(T: Bullet)(BulletML bml, Bullet unresolved, Expression[] params) {
-  Bullet resolved = new Bullet;
+  Bullet resolved = Bullet();
 
   resolved.label = unresolved.label;
   resolved.direction = _resolve(bml, unresolved.direction, params);
@@ -74,7 +74,7 @@ private Bullet _resolve(T: Bullet)(BulletML bml, Bullet unresolved, Expression[]
 }
 
 private ChangeDirection _resolve(T: ChangeDirection)(BulletML bml, ChangeDirection unresolved, Expression[] params) {
-  ChangeDirection resolved = new ChangeDirection;
+  ChangeDirection resolved = ChangeDirection();
 
   resolved.direction = _resolve!Direction(bml, unresolved.direction, params);
   resolved.term = _resolve!Term(bml, unresolved.term, params);
@@ -83,7 +83,7 @@ private ChangeDirection _resolve(T: ChangeDirection)(BulletML bml, ChangeDirecti
 }
 
 private ChangeSpeed _resolve(T: ChangeSpeed)(BulletML bml, ChangeSpeed unresolved, Expression[] params) {
-  ChangeSpeed resolved = new ChangeSpeed;
+  ChangeSpeed resolved = ChangeSpeed();
 
   resolved.speed = _resolve!Speed(bml, unresolved.speed, params);
   resolved.term = _resolve!Term(bml, unresolved.term, params);
@@ -92,7 +92,7 @@ private ChangeSpeed _resolve(T: ChangeSpeed)(BulletML bml, ChangeSpeed unresolve
 }
 
 private Direction _resolve(T: Direction)(BulletML bml, Direction unresolved, Expression[] params) {
-  Direction resolved = new Direction;
+  Direction resolved = Direction();
 
   resolved.type = unresolved.type;
   resolved.degrees = resolveExpr(unresolved.degrees, params);
@@ -101,7 +101,7 @@ private Direction _resolve(T: Direction)(BulletML bml, Direction unresolved, Exp
 }
 
 private Fire _resolve(T: Fire)(BulletML bml, Fire unresolved, Expression[] params) {
-  Fire resolved = new Fire;
+  Fire resolved = Fire();
 
   resolved.label = unresolved.label;
   resolved.direction = _resolve(bml, unresolved.direction, params);
@@ -112,7 +112,7 @@ private Fire _resolve(T: Fire)(BulletML bml, Fire unresolved, Expression[] param
 }
 
 private Horizontal _resolve(T: Horizontal)(BulletML bml, Horizontal unresolved, Expression[] params) {
-  Horizontal resolved = new Horizontal;
+  Horizontal resolved = Horizontal();
 
   resolved.type = unresolved.type;
   resolved.change = resolveExpr(unresolved.change, params);
@@ -121,7 +121,7 @@ private Horizontal _resolve(T: Horizontal)(BulletML bml, Horizontal unresolved, 
 }
 
 private Param _resolve(T: Param)(BulletML bml, Param unresolved, Expression[] params) {
-  Param resolved = new Param;
+  Param resolved = Param();
 
   resolved.value = resolveExpr(unresolved.value, params).get();
 
@@ -129,7 +129,7 @@ private Param _resolve(T: Param)(BulletML bml, Param unresolved, Expression[] pa
 }
 
 private Repeat _resolve(T: Repeat)(BulletML bml, Repeat unresolved, Expression[] params) {
-  Repeat resolved = new Repeat;
+  Repeat resolved = Repeat();
 
   resolved.times = _resolve!Times(bml, unresolved.times, params);
   resolved.actions = _resolve(bml, unresolved.actions, params);
@@ -138,7 +138,7 @@ private Repeat _resolve(T: Repeat)(BulletML bml, Repeat unresolved, Expression[]
 }
 
 private Speed _resolve(T: Speed)(BulletML bml, Speed unresolved, Expression[] params) {
-  Speed resolved = new Speed;
+  Speed resolved = Speed();
 
   resolved.type = unresolved.type;
   resolved.change = resolveExpr(unresolved.change, params);
@@ -147,7 +147,7 @@ private Speed _resolve(T: Speed)(BulletML bml, Speed unresolved, Expression[] pa
 }
 
 private Term _resolve(T: Term)(BulletML bml, Term unresolved, Expression[] params) {
-  Term resolved = new Term;
+  Term resolved = Term();
 
   resolved.value = resolveExpr(unresolved.value, params);
 
@@ -155,7 +155,7 @@ private Term _resolve(T: Term)(BulletML bml, Term unresolved, Expression[] param
 }
 
 private Times _resolve(T: Times)(BulletML bml, Times unresolved, Expression[] params) {
-  Times resolved = new Times;
+  Times resolved = Times();
 
   resolved.value = resolveExpr(unresolved.value, params);
 
@@ -163,13 +163,13 @@ private Times _resolve(T: Times)(BulletML bml, Times unresolved, Expression[] pa
 }
 
 private Vanish _resolve(T: Vanish)(BulletML bml, Vanish unresolved, Expression[] params) {
-  Vanish resolved = new Vanish;
+  Vanish resolved = Vanish();
 
   return resolved;
 }
 
 private Vertical _resolve(T: Vertical)(BulletML bml, Vertical unresolved, Expression[] params) {
-  Vertical resolved = new Vertical;
+  Vertical resolved = Vertical();
 
   resolved.type = unresolved.type;
   resolved.change = resolveExpr(unresolved.change, params);
@@ -178,7 +178,7 @@ private Vertical _resolve(T: Vertical)(BulletML bml, Vertical unresolved, Expres
 }
 
 private Wait _resolve(T: Wait)(BulletML bml, Wait unresolved, Expression[] params) {
-  Wait resolved = new Wait;
+  Wait resolved = Wait();
 
   resolved.frames = resolveExpr(unresolved.frames, params);
 
@@ -223,7 +223,10 @@ private T _resolve(U: ORef!T, T)(BulletML bml, U unresolved, Expression[] params
     resolvedParams ~= resolveExpr(param.value, params);
   }
 
-  T target = findElement!T(bml, unresolved.label);
+  Nullable!T target = findElement!T(bml, unresolved.label);
+  if (target.isNull) {
+    throw new Exception("could not find target " ~ typeid(T).toString ~ " named " ~ unresolved.label);
+  }
   return _resolve!T(bml, target, resolvedParams);
 }
 
@@ -242,11 +245,17 @@ private D _resolve(D: VariantN!A, A...)(BulletML bml, D unresolved, Expression[]
     T* item = unresolved.peek!T();
     if (item !is null) {
       static if (isPointer!T) {
-        PointerTarget!T resolved = _resolve!(PointerTarget!T)(bml, **item, params);
-        return D(&resolved);
+        alias Target = PointerTarget!T;
+        Target resolved = _resolve!Target(bml, **item, params);
+        Target* gcResolved = new Target();
+        *gcResolved = resolved;
+        return D(gcResolved);
       } else static if (isInstanceOf!(ORef, T) && D.allowed!(T.Referent*)) {
-        T.Referent resolved = _resolve!T(bml, *item, params);
-        return D(&resolved);
+        alias Target = T.Referent;
+        Target resolved = _resolve!T(bml, *item, params);
+        Target* gcResolved = new Target();
+        *gcResolved = resolved;
+        return D(gcResolved);
       } else {
         return D(_resolve!T(bml, *item, params));
       }
@@ -256,29 +265,29 @@ private D _resolve(D: VariantN!A, A...)(BulletML bml, D unresolved, Expression[]
   assert(0);
 }
 
-private T findElement(T)(BulletML bml, string label) {
+private Nullable!T findElement(T)(BulletML bml, string label) {
   foreach (elem; bml.elements) {
-    T item = _findElement!T(elem, label);
-    if (item !is null) {
+    Nullable!T item = _findElement!T(elem, label);
+    if (!item.isNull) {
       return item;
     }
   }
 
-  return null;
+  return Nullable!T();
 }
 
-private T _findElement(T, U)(U[] elems, string label) {
+private Nullable!T _findElement(T, U)(U[] elems, string label) {
   foreach (elem; elems) {
-    T item = _findElement!T(elem, label);
-    if (item !is null) {
+    Nullable!T item = _findElement!T(elem, label);
+    if (!item.isNull) {
       return item;
     }
   }
 
-  return null;
+  return Nullable!T();
 }
 
-private T _findElement(T, D: VariantN!A, A...)(D elem, string label) {
+private Nullable!T _findElement(T, D: VariantN!A, A...)(D elem, string label) {
   foreach (U; D.AllowedTypes) {
     U* item = elem.peek!U();
     if (item !is null) {
@@ -286,59 +295,59 @@ private T _findElement(T, D: VariantN!A, A...)(D elem, string label) {
     }
   }
 
-  return null;
+  return Nullable!T();
 }
 
-private T _findElement(T, U)(U item, string label) if (isPointer!U) {
+private Nullable!T _findElement(T, U)(U item, string label) if (isPointer!U) {
   return _findElement!(T, PointerTarget!U)(*item, label);
 }
 
-private T _findElement(T, U)(U item, string label)
+private Nullable!T _findElement(T, U)(U item, string label)
   if (!is(T == U) &&
       !isInstanceOf!(VariantN, U) &&
       !isInstanceOf!(ORef, U) &&
       !isArray!(U) &&
       !isPointer!U) {
-  return null;
+  return Nullable!T();
 }
 
-private T _findElement(T, U)(U elem, string label) if (isInstanceOf!(ORef, U)) {
-  return null;
+private Nullable!T _findElement(T, U)(U elem, string label) if (isInstanceOf!(ORef, U)) {
+  return Nullable!T();
 }
 
-private T _findElement(T, U: Action)(U action, string label) {
-  T self = findElementSelf!T(action, label);
-  if (self !is null) {
+private Nullable!T _findElement(T, U: Action)(U action, string label) {
+  Nullable!T self = findElementSelf!T(action, label);
+  if (!self.isNull) {
     return self;
   }
 
   return _findElement!T(action.contents, label);
 }
 
-private T _findElement(T, U: Bullet)(U bullet, string label) {
-  T self = findElementSelf!T(bullet, label);
-  if (self !is null) {
+private Nullable!T _findElement(T, U: Bullet)(U bullet, string label) {
+  Nullable!T self = findElementSelf!T(bullet, label);
+  if (!self.isNull) {
     return self;
   }
 
   return _findElement!T(bullet.actions, label);
 }
 
-private T _findElement(T, U: Fire)(Fire fire, string label) {
-  T self = findElementSelf!T(fire, label);
-  if (self !is null) {
+private Nullable!T _findElement(T, U: Fire)(Fire fire, string label) {
+  Nullable!T self = findElementSelf!T(fire, label);
+  if (!self.isNull) {
     return self;
   }
 
   return _findElement!T(fire.bullet, label);
 }
 
-private T findElementSelf(T, U)(U item, string label) {
+private Nullable!T findElementSelf(T, U)(U item, string label) {
   static if (is(T == U)) {
     if (label == item.label) {
-      return item;
+      return Nullable!T(item);
     }
   }
 
-  return null;
+  return Nullable!T();
 }

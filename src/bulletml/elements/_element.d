@@ -84,7 +84,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref Nullable!D store,
       throw new DuplicateTag(xml, name);
     }
 
-    D dat = new D;
+    D dat = D();
     P elem = new P(&dat);
 
     elem.setup(xml);
@@ -102,7 +102,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
       throw new DuplicateTag(xml, name);
     }
 
-    D dat = new D;
+    D dat = D();
     P elem = new P(dat);
 
     elem.setup(xml);
@@ -120,7 +120,7 @@ private void _parse(P, D)(ElementParser p, string tag, ref D store,
       throw new DuplicateTag(xml, name);
     }
 
-    D dat = new D;
+    D dat = D();
     P elem = new P(&dat);
 
     elem.setup(xml);
@@ -139,7 +139,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
       throw new DuplicateTag(xml, name);
     }
 
-    T dat = new T;
+    T dat = T();
     P elem = new P(&dat);
 
     elem.setup(xml);
@@ -152,7 +152,7 @@ private void _parse(P, D, T)(ElementParser p, string tag, ref D store,
 
 private void _parse(P, D)(ElementParser p, string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
-    D dat = new D;
+    D dat = D();
     P elem = new P(&dat);
 
     elem.setup(xml);
@@ -163,49 +163,49 @@ private void _parse(P, D)(ElementParser p, string tag, ref D[] store) {
 
 private void _parse(P, D, T)(ElementParser p, string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
-    T dat = new T;
+    T dat = T();
     P elem = new P(&dat);
 
     elem.setup(xml);
 
-    store ~= *new D(dat);
+    store ~= D(dat);
   };
 }
 
 private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] store) {
   p.onStartTag[tag] = (ElementParser xml) {
-    T dat = new T;
-    P elem = new P(&dat);
+    T* dat = new T();
+    P elem = new P(dat);
 
     elem.setup(xml);
 
-    store ~= *new D(&dat);
+    store ~= D(dat);
   };
 }
 
 private void _parse(P, D, T)(ElementParser p, string tag, ref D[] store,
                              Fuse fuse) {
   p.onStartTag[tag] = (ElementParser xml) {
-    T dat = new T;
+    T dat = T();
     P elem = new P(&dat);
 
     elem.setup(xml);
 
     fuse.defuse();
-    store ~= *new D(dat);
+    store ~= D(dat);
   };
 }
 
 private void _parse(P, D, U: T*, T)(ElementParser p, const string tag, ref D[] store,
                                     Fuse fuse) {
   p.onStartTag[tag] = (ElementParser xml) {
-    T dat = new T;
-    P elem = new P(&dat);
+    T* dat = new T();
+    P elem = new P(dat);
 
     elem.setup(xml);
 
     fuse.defuse();
-    store ~= *new D(&dat);
+    store ~= D(dat);
   };
 }
 

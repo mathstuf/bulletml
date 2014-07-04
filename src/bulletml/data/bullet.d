@@ -8,7 +8,7 @@ public import bulletml.data.speed;
 public import std.typecons;
 public import std.variant;
 
-public class Bullet {
+public struct Bullet {
   public:
     string label;
     Nullable!Direction direction;
@@ -18,7 +18,4 @@ public class Bullet {
         ORef!Action
         ) BAction;
     BAction[] actions;
-  private:
-    public this() {
-    }
 }

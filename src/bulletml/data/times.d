@@ -2,11 +2,7 @@ module bulletml.data.times;
 
 public import bulletml.data.expression;
 
-public class Times {
+public struct Times {
   public:
     Expression value;
-  private:
-    public this() {
-      value = null;
-    }
 }

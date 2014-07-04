@@ -6,7 +6,7 @@ public import bulletml.data.fire;
 
 public import std.variant;
 
-public class BulletML {
+public struct BulletML {
   public:
     public enum Orientation {
       NONE,
@@ -22,7 +22,9 @@ public class BulletML {
         ) Element;
     Element[] elements;
   private:
-    public this() {
-      orientation = Orientation.NONE;
+    public static BulletML opCall() {
+      BulletML b;
+      b.orientation = Orientation.NONE;
+      return b;
     }
 }

@@ -10,7 +10,7 @@ private import std.xml;
 public BulletML parse(string fname) {
   string contents = readText(fname);
   DocumentParser p = new DocumentParser(contents);
-  BulletML bml = new BulletML;
+  BulletML bml = BulletML();
   EBulletML elem = new EBulletML(&bml);
 
   elem.setup(p);
@@ -26,7 +26,7 @@ public BulletML parse(InputStream istr) {
     contents ~= chunk;
   }
   DocumentParser p = new DocumentParser(contents.idup);
-  BulletML bml = new BulletML;
+  BulletML bml = BulletML();
   EBulletML elem = new EBulletML(&bml);
 
   elem.setup(p);

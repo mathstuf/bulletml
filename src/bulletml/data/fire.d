@@ -8,7 +8,7 @@ public import bulletml.data.speed;
 public import std.typecons;
 public import std.variant;
 
-public class Fire {
+public struct Fire {
   public:
     string label;
     Nullable!Direction direction;
@@ -18,7 +18,6 @@ public class Fire {
         ORef!Bullet,
         ) FBullet;
     FBullet bullet;
-  private:
-    public this() {
-    }
+
+    bool opEquals() @disable;
 }
