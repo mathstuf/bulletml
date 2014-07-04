@@ -268,7 +268,7 @@ public class ActionRunner: BulletMLRunner {
     private void nextAction(ref ActionZipper zipper) {
       zipper.next();
 
-      if (zipper.done()) {
+      if (zipper.done() && zipper.parent() !is null) {
         nextSibling(zipper);
       }
     }
