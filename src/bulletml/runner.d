@@ -195,7 +195,7 @@ public class ActionRunner: BulletMLRunner {
         // Try to go up a level.
         if (zipper.parent() is null) {
           // We're waiting for a trailing 'wait' element.
-          if (!next.isNull() && next.get() < turn) {
+          if (next.isNull || turn <= next.get()) {
             // End the bullet if we have no left over update functions
             // remaining.
             if (!updated) {
