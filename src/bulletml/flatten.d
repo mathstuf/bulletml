@@ -2,6 +2,7 @@ module bulletml.flatten;
 
 private import bulletml.data.bulletml;
 
+private import std.conv;
 private import std.traits;
 
 public class ResolvedBulletML {
@@ -192,7 +193,10 @@ private Expression resolveExpr(Expression expr, Expression[] params) {
 
   ExpressionParameter param = cast(ExpressionParameter) expr;
   if (param !is null) {
-    expr = params[param.idx];
+    if (param.idx <= 0 || params.length < param.idx) {
+      throw new Exception("Looking for parameter " ~ to!string(param.idx) ~ ", but only " ~ to!string(params.length) ~ " available");
+    }
+    expr = params[param.idx - 1];
   }
 
   ExpressionOperation op = cast(ExpressionOperation) expr;
