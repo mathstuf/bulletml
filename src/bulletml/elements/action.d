@@ -18,6 +18,8 @@ public class EAction: BulletMLElement {
     mixin Storage!Action;
   private:
     public override void setup(ElementParser p) {
+      value.label = p.tag.attr.get("label", "");
+
       static const string[] tags = [
         "repeat",
         "fire",
