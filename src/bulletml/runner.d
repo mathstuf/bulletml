@@ -141,12 +141,11 @@ public class ActionRunner: BulletMLRunner {
           return actions[idx];
         }
 
-        public Action.AElement next() {
+        public void next() {
           ++idx;
           if (done() && --repeat) {
             idx = 0;
           }
-          return current();
         }
     }
 
