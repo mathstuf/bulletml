@@ -209,7 +209,7 @@ public class ActionRunner: BulletMLRunner {
         nextSibling(zipper);
       }
 
-      while (!zipper.done() && runAction(zipper.current(), turn)) {
+      while (!zipper.done()) {
         Status status = runAction(zipper.current(), turn);
 
         if (status == Status.END) {
