@@ -13,6 +13,8 @@ public class EBullet: BulletMLElement {
     mixin Storage!Bullet;
   private:
     public override void setup(ElementParser p) {
+      value.label = p.tag.attr.get("label", "");
+
       parseOptional!EDirection(p, "direction", value.direction);
       parseOptional!ESpeed(p, "speed", value.speed);
 
