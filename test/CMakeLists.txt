@@ -3,7 +3,7 @@ include(ExternalProject)
 set(data_base_dir "${CMAKE_CURRENT_BINARY_DIR}/data")
 set(data_dir "${data_base_dir}/src/bulletml-examples-data")
 externalproject_add(bulletml-examples-data
-  GIT_REPOSITORY https://github.com/dmanning23/BulletMLExamples
+  GIT_REPOSITORY https://github.com/mathstuf/BulletMLExamples
   GIT_TAG        master
 
   PREFIX            "${data_base_dir}"
