@@ -23,10 +23,13 @@ public ResolvedBulletML resolve(BulletML bml) {
 
   resolved.orientation = bml.orientation;
   foreach (elem; bml.elements) {
-    elem.tryVisit!((Action action) {
+    elem.tryVisit!(
+      (Action action) {
         if (action.label.length >= 3 && action.label[0..3] == "top") {
           resolved.elements ~= BulletML.Element(_resolve!Action(bml, action, []));
         }
+      },
+      () {
       })();
   }
 
