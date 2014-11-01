@@ -19,6 +19,11 @@ add_executable(test_parse
 target_link_libraries(test_parse
   bulletml)
 
+add_executable(test_resolve
+  test_resolve.d)
+target_link_libraries(test_resolve
+  bulletml)
+
 file(GLOB_RECURSE examples
   RELATIVE "${data_dir}"
   "${data_dir}/*.xml")
@@ -32,4 +37,11 @@ foreach (example IN LISTS examples)
     NAME    "parse-${safe_example}"
     COMMAND "$<TARGET_FILE:test_parse>"
             "${data_dir}/${example}")
+  add_test(
+    NAME    "resolve-${safe_example}"
+    COMMAND "$<TARGET_FILE:test_resolve>"
+            "${data_dir}/${example}")
+  set_tests_properties("resolve-${safe_example}"
+    PROPERTIES
+      DEPENDS "parse-${safe_example}")
 endforeach ()
