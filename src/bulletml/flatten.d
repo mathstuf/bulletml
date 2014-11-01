@@ -197,9 +197,10 @@ private Expression resolveExpr(Expression expr, Expression[] params) {
   ExpressionParameter param = cast(ExpressionParameter) expr;
   if (param !is null) {
     if (param.idx <= 0 || params.length < param.idx) {
-      throw new Exception("Looking for parameter " ~ to!string(param.idx) ~ ", but only " ~ to!string(params.length) ~ " available");
+      expr = new ExpressionConstant(1);
+    } else {
+      expr = params[param.idx - 1];
     }
-    expr = params[param.idx - 1];
   }
 
   ExpressionOperation op = cast(ExpressionOperation) expr;
