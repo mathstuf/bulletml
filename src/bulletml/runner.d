@@ -284,6 +284,8 @@ public class ActionRunner: BulletMLRunner {
           runRepeat(*repeat, turn),
         (Fire* fire) =>
           runFire(*fire, turn),
+        (ORef!Fire ofire) =>
+          runFire(*ofire.target, turn),
         (ChangeSpeed changeSpeed) =>
           runChangeSpeed(changeSpeed, turn),
         (ChangeDirection changeDirection) =>
@@ -296,10 +298,8 @@ public class ActionRunner: BulletMLRunner {
           runVanish(vanish, turn),
         (Action* action) =>
           runAction(*action, turn),
-        // This should never happen...
-        () =>
-          // ...but if it does, skip the element.
-          Status.CONTINUE
+        (ORef!Action oaction) =>
+          runAction(*oaction.target, turn)
         )();
     }
 
@@ -514,7 +514,12 @@ public class ActionRunner: BulletMLRunner {
       prevDirection = fDirection;
       prevSpeed = fSpeed;
 
-      Bullet bullet = fire.bullet.get!Bullet();
+      Bullet bullet = fire.bullet.tryVisit!(
+        (Bullet bullet) =>
+          bullet,
+        (ORef!Bullet obullet) =>
+          *obullet.target
+        )();
 
       // Update with any bullet-specific direction and speeds.
       Nullable!float bDirection = getDirection(bullet.direction, fDirection);
@@ -535,7 +540,12 @@ public class ActionRunner: BulletMLRunner {
       if (bullet.actions.length) {
         Action[] actions;
         foreach (act; bullet.actions) {
-          actions ~= act.get!Action();
+          actions ~= act.tryVisit!(
+            (Action action) =>
+              action,
+            (ORef!Action oaction) =>
+              *oaction.target
+            )();
         }
 
         ResolvedBulletML bml = bulletWithActions(orientation, actions);
