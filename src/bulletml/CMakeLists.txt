@@ -6,7 +6,7 @@ set(bulletml_srcs
     parser.d
     runner.d)
 set(bulletml_private_srcs
-    flatten.d)
+    resolve.d)
 
 add_library(bulletml STATIC
     ${bulletml_srcs}

@@ -1,7 +1,7 @@
 module bulletml.runner;
 
 private import bulletml.data.bulletml;
-private import bulletml.flatten;
+private import bulletml.resolve;
 
 private import std.algorithm;
 private import std.container;

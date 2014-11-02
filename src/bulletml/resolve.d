@@ -1,4 +1,4 @@
-module bulletml.flatten;
+module bulletml.resolve;
 
 private import bulletml.data.bulletml;
 
