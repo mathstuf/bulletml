@@ -85,8 +85,11 @@ private class GroupRunner: BulletMLRunner {
     package this(BulletManager manager, const ResolvedBulletML bml) {
       BulletML.Orientation orientation = bml.get().orientation;
       foreach (elem; bml.get().elements) {
-        elem.tryVisit!((Action action) {
+        elem.tryVisit!(
+          (Action action) {
             runners ~= new ActionRunner(manager, orientation, action);
+          },
+          () {
           })();
       }
     }
